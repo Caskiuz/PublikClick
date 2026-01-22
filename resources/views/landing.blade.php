@@ -480,25 +480,46 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorDiv = document.getElementById('loginError');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            // Limpiar errores previos
+            errorDiv.classList.add('hidden');
+            
+            console.log('CSRF Token:', csrfToken);
+            
+            if (!csrfToken) {
+                errorDiv.textContent = 'Error de seguridad: Token CSRF no encontrado';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
             
             try {
                 const response = await fetch('/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
                 });
                 
-                if (response.ok) {
-                    window.location.href = '/dashboard';
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok && data.success) {
+                    window.location.href = data.redirect || '/dashboard';
                 } else {
-                    const data = await response.json();
                     errorDiv.textContent = data.message || 'Credenciales incorrectas';
                     errorDiv.classList.remove('hidden');
                 }
             } catch (error) {
+                console.error('Login error:', error);
                 errorDiv.textContent = 'Error de conexión';
                 errorDiv.classList.remove('hidden');
             }
@@ -513,9 +534,19 @@
             const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
             const referralCode = document.getElementById('registerReferralCode').value;
             const errorDiv = document.getElementById('registerError');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            // Limpiar errores previos
+            errorDiv.classList.add('hidden');
             
             if (password !== passwordConfirm) {
                 errorDiv.textContent = 'Las contraseñas no coinciden';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (!csrfToken) {
+                errorDiv.textContent = 'Error de seguridad: Token CSRF no encontrado';
                 errorDiv.classList.remove('hidden');
                 return;
             }
@@ -525,25 +556,29 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({ 
-                        name, 
-                        email, 
-                        password, 
+                        name: name, 
+                        email: email, 
+                        password: password, 
                         password_confirmation: passwordConfirm,
                         referral_code: referralCode 
                     })
                 });
                 
-                if (response.ok) {
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
                     window.location.href = '/dashboard';
                 } else {
-                    const data = await response.json();
                     errorDiv.textContent = data.message || 'Error en el registro';
                     errorDiv.classList.remove('hidden');
                 }
             } catch (error) {
+                console.error('Register error:', error);
                 errorDiv.textContent = 'Error de conexión';
                 errorDiv.classList.remove('hidden');
             }

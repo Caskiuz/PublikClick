@@ -84,7 +84,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-lg font-semibold text-gray-700">Balance Retiro</h3>
-                                <p class="text-2xl font-bold text-green-600">${{ number_format($user->getAvailableBalance(), 2) }}</p>
+                                <p class="text-2xl font-bold text-green-600">${{ number_format($user->wallet_balance ?? 0, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -137,11 +137,11 @@
                         </h3>
                         <div class="text-center mb-4">
                             <p class="text-3xl font-bold text-blue-600">{{ 5 - $todayMainClicks }}</p>
-                            <p class="text-gray-600">Clicks disponibles</p>
+                            <p class="text-gray-600">Clicks disponibles hoy</p>
                             <p class="text-sm text-green-600">${{ number_format($user->calculateMainAdEarnings(), 2) }} por click</p>
                         </div>
-                        @if($user->canClickMainAds() && $availableAds->count() > 0)
-                            <button onclick="clickMainAd({{ $availableAds->first()->id ?? 1 }})" 
+                        @if($todayMainClicks < 5 && $availableAds->count() > 0)
+                            <button onclick="clickMainAd({{ $availableAds->first()->id }})" 
                                     class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
                                 <i class="fas fa-mouse-pointer mr-2"></i>
                                 Hacer Click Principal
@@ -161,10 +161,10 @@
                         </h3>
                         <div class="text-center mb-4">
                             <p class="text-3xl font-bold text-yellow-600">{{ ($user->currentRank->mini_ads_daily ?? 1) - $todayMiniClicks }}</p>
-                            <p class="text-gray-600">Clicks disponibles</p>
+                            <p class="text-gray-600">Clicks disponibles hoy</p>
                             <p class="text-sm text-green-600">${{ number_format($user->calculateMiniAdEarnings(), 2) }} por click</p>
                         </div>
-                        @if($user->canClickMiniAds())
+                        @if($todayMiniClicks < ($user->currentRank->mini_ads_daily ?? 1))
                             <button onclick="clickMiniAd()" 
                                     class="w-full bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
                                 <i class="fas fa-star mr-2"></i>
@@ -184,11 +184,11 @@
                             Mega-Anuncios
                         </h3>
                         <div class="text-center mb-4">
-                            <p class="text-3xl font-bold text-purple-600">{{ $megaAd ? $megaAd->clicks_remaining : 0 }}</p>
+                            <p class="text-3xl font-bold text-purple-600">{{ $megaAd->clicks_remaining ?? ($user->currentRank->mega_ads_monthly ?? 10) }}</p>
                             <p class="text-gray-600">Clicks este mes</p>
                             <p class="text-sm text-green-600">$2,000 por click</p>
                         </div>
-                        @if($megaAd && $megaAd->canClick())
+                        @if(!$megaAd || $megaAd->clicks_remaining > 0)
                             <button onclick="clickMegaAd()" 
                                     class="w-full bg-purple-500 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
                                 <i class="fas fa-gem mr-2"></i>
@@ -196,7 +196,7 @@
                             </button>
                         @else
                             <button disabled class="w-full bg-gray-400 text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed">
-                                {{ $megaAd ? 'Agotado este mes' : 'No disponible' }}
+                                Agotado este mes
                             </button>
                         @endif
                     </div>
@@ -243,7 +243,44 @@
         </div>
     </div>
 
+    <!-- Modal de Notificaciones -->
+    <div id="notificationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6 transform transition-all">
+            <div class="text-center">
+                <div id="notificationIcon" class="mx-auto mb-4"></div>
+                <h3 id="notificationTitle" class="text-xl font-bold mb-2"></h3>
+                <p id="notificationMessage" class="text-gray-600 mb-6"></p>
+                <button onclick="closeNotification()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function showNotification(title, message, type = 'success') {
+            const modal = document.getElementById('notificationModal');
+            const icon = document.getElementById('notificationIcon');
+            const titleEl = document.getElementById('notificationTitle');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            const icons = {
+                success: '<div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center"><i class="fas fa-check text-green-500 text-3xl"></i></div>',
+                error: '<div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center"><i class="fas fa-times text-red-500 text-3xl"></i></div>',
+                warning: '<div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center"><i class="fas fa-exclamation text-yellow-500 text-3xl"></i></div>',
+                info: '<div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-info text-blue-500 text-3xl"></i></div>'
+            };
+            
+            icon.innerHTML = icons[type] || icons.success;
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            modal.classList.remove('hidden');
+        }
+
+        function closeNotification() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+
         async function clickMainAd(adId) {
             try {
                 const response = await fetch(`/clicks/main/${adId}`, {
@@ -257,13 +294,13 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert(`¡Ganaste $${data.earnings}! Clicks restantes: ${data.remaining_clicks}`);
-                    location.reload();
+                    showNotification('¡Ganaste!', `Ganaste $${data.earnings}! Clicks restantes: ${data.remaining_clicks}`, 'success');
+                    setTimeout(() => location.reload(), 2000);
                 } else {
-                    alert(data.message);
+                    showNotification('Error', data.message, 'error');
                 }
             } catch (error) {
-                alert('Error al procesar el click');
+                showNotification('Error', 'Error al procesar el click', 'error');
             }
         }
 
@@ -280,13 +317,13 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert(`¡Ganaste $${data.earnings}! Mini-clicks restantes: ${data.remaining_mini_clicks}`);
-                    location.reload();
+                    showNotification('¡Ganaste!', `Ganaste $${data.earnings}! Mini-clicks restantes: ${data.remaining_mini_clicks}`, 'success');
+                    setTimeout(() => location.reload(), 2000);
                 } else {
-                    alert(data.message);
+                    showNotification('Error', data.message, 'error');
                 }
             } catch (error) {
-                alert('Error al procesar el click');
+                showNotification('Error', 'Error al procesar el click', 'error');
             }
         }
 
@@ -303,13 +340,13 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert(`¡MEGA-CLICK! Ganaste $${data.earnings}! Mega-clicks restantes: ${data.remaining_mega_clicks}`);
-                    location.reload();
+                    showNotification('¡MEGA-CLICK!', `Ganaste $${data.earnings}! Mega-clicks restantes: ${data.remaining_mega_clicks}`, 'success');
+                    setTimeout(() => location.reload(), 2000);
                 } else {
-                    alert(data.message);
+                    showNotification('Error', data.message, 'error');
                 }
             } catch (error) {
-                alert('Error al procesar el click');
+                showNotification('Error', 'Error al procesar el click', 'error');
             }
         }
     </script>

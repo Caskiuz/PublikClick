@@ -10,23 +10,31 @@ class Package extends Model
         'name',
         'description',
         'price_usd',
+        'price_cop',
+        'daily_ads',
+        'click_earnings',
         'banner_views',
         'post_views',
         'ptc_views',
         'main_ad_value',
         'mini_ad_value',
         'mini_ads_count',
+        'benefits',
         'is_active'
     ];
 
     protected $casts = [
         'price_usd' => 'decimal:2',
+        'price_cop' => 'decimal:2',
+        'daily_ads' => 'integer',
+        'click_earnings' => 'decimal:4',
         'banner_views' => 'integer',
         'post_views' => 'integer',
         'ptc_views' => 'integer',
         'main_ad_value' => 'decimal:2',
         'mini_ad_value' => 'decimal:2',
         'mini_ads_count' => 'integer',
+        'benefits' => 'array',
         'is_active' => 'boolean'
     ];
 

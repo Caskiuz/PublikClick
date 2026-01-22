@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'currency',
         'referral_code',
         'referred_by',
         'current_package_id',
@@ -118,13 +119,17 @@ class User extends Authenticatable
     // Métodos de negocio para clicks
     public function getTodayClicksCount()
     {
-        return $this->adClicks()->whereDate('clicked_at', today())->count();
+        return \Cache::remember('user_clicks_today_' . $this->id, 300, function() {
+            return $this->adClicks()->whereDate('clicked_at', today())->count();
+        });
     }
 
     public function getTodayMiniAdsClicks()
     {
-        return $this->adClicks()->whereDate('clicked_at', today())
-                   ->where('ad_type', 'mini')->count();
+        return \Cache::remember('user_mini_clicks_today_' . $this->id, 300, function() {
+            return $this->adClicks()->whereDate('clicked_at', today())
+                       ->where('ad_type', 'mini')->count();
+        });
     }
 
     public function canClickMainAds()
@@ -176,11 +181,18 @@ class User extends Authenticatable
     {
         if (!$this->currentPackage) return 0;
         
+        // Usar valores de la base de datos si existen
+        if (isset($this->currentPackage->main_ad_value)) {
+            return $this->currentPackage->main_ad_value;
+        }
+        
+        // Fallback a valores según el ROADMAP
         $packageEarnings = [
             25 => 400,
             50 => 600,
             100 => 1120,
-            150 => 1600
+            150 => 1600,
+            200 => 1800  // Elite según ROADMAP
         ];
         
         return $packageEarnings[$this->currentPackage->price_usd] ?? 0;
@@ -190,11 +202,18 @@ class User extends Authenticatable
     {
         if (!$this->currentPackage) return 0;
         
+        // Usar valores de la base de datos si existen
+        if (isset($this->currentPackage->mini_ad_value)) {
+            return $this->currentPackage->mini_ad_value;
+        }
+        
+        // Fallback a valores según el ROADMAP
         $packageEarnings = [
             25 => 83.33,
             50 => 425,
             100 => 100,
-            150 => 600
+            150 => 600,
+            200 => 800  // Elite según ROADMAP
         ];
         
         return $packageEarnings[$this->currentPackage->price_usd] ?? 0;
@@ -304,6 +323,13 @@ class User extends Authenticatable
             if ($initialRank) {
                 $user->current_rank_id = $initialRank->id;
                 $user->save();
+            }
+            
+            // Enviar email de bienvenida
+            try {
+                \Mail::to($user->email)->send(new \App\Mail\WelcomeUser($user));
+            } catch (\Exception $e) {
+                \Log::info('Email no enviado: ' . $e->getMessage());
             }
         });
     }

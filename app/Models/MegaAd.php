@@ -49,20 +49,34 @@ class MegaAd extends Model
         $month = $month ?? now()->month;
         $year = $year ?? now()->year;
 
-        $user = User::find($userId);
-        if (!$user || !$user->currentRank) {
+        $user = User::with('currentRank')->find($userId);
+        if (!$user) {
+            return null;
+        }
+
+        // Si no tiene rango, asignar Jade por defecto
+        if (!$user->currentRank) {
+            $jadeRank = \App\Models\Rank::where('name', 'Jade')->first();
+            if ($jadeRank) {
+                $user->current_rank_id = $jadeRank->id;
+                $user->save();
+                $user->load('currentRank');
+            }
+        }
+
+        if (!$user->currentRank) {
             return null;
         }
 
         return self::firstOrCreate([
             'user_id' => $userId,
-            'month' => $month,
-            'year' => $year
+            'month' => (int)$month,
+            'year' => (int)$year
         ], [
             'rank_id' => $user->current_rank_id,
-            'total_available' => $user->currentRank->mega_ads_monthly,
+            'total_available' => $user->currentRank->mega_ads_monthly ?? 10,
             'clicks_used' => 0,
-            'clicks_remaining' => $user->currentRank->mega_ads_monthly,
+            'clicks_remaining' => $user->currentRank->mega_ads_monthly ?? 10,
             'earnings_per_click' => 2000.00
         ]);
     }

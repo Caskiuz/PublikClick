@@ -9,6 +9,7 @@ use App\Models\UserAdClick;
 use App\Models\MegaAd;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Routing\Controller;
 
 class ClickController extends Controller
 {
@@ -60,57 +61,48 @@ class ClickController extends Controller
             DB::beginTransaction();
             
             $user = Auth::user();
+            $user->load(['currentPackage']);
             
-            // Validaciones anti-fraude
-            $validation = UserAdClick::validateClick(
-                $user->id, 
-                $request->ip(), 
-                $request->userAgent()
-            );
+            $todayClicks = $user->adClicks()->whereDate('clicked_at', today())->where('ad_type', 'main')->count();
             
-            if (!$validation['valid']) {
+            if ($todayClicks >= 5) {
                 return response()->json([
                     'success' => false,
-                    'message' => $validation['reason']
+                    'message' => 'Ya completaste tus 5 clicks diarios'
                 ], 400);
             }
             
-            // Verificar si puede hacer clicks
-            if (!$user->canClickMainAds()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ya has completado tus 5 clicks diarios'
-                ], 400);
-            }
+            $earnings = $user->calculateMainAdEarnings();
             
-            // Verificar que el anuncio existe
-            $ad = Ad::findOrFail($adId);
-            if (!$ad->is_active) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anuncio no disponible'
-                ], 400);
-            }
+            UserAdClick::create([
+                'user_id' => $user->id,
+                'ad_id' => $adId,
+                'ad_type' => 'main',
+                'clicked_at' => now(),
+                'earnings' => $earnings,
+                'ip_address' => $request->ip()
+            ]);
             
-            // Procesar click
-            $click = $user->clickMainAd($adId);
+            $user->wallet_balance += $earnings;
+            $user->save();
             
             DB::commit();
             
+            $remaining = 5 - ($todayClicks + 1);
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Click procesado exitosamente',
-                'earnings' => $click->earnings,
-                'remaining_clicks' => 5 - ($user->getTodayClicksCount()),
-                'wallet_balance' => $user->getAvailableBalance()
+                'message' => "¡Ganaste $$earnings!",
+                'earnings' => number_format($earnings, 2),
+                'remaining_clicks' => $remaining,
+                'new_balance' => number_format($user->wallet_balance, 2)
             ]);
             
         } catch (\Exception $e) {
             DB::rollBack();
-            
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -124,48 +116,49 @@ class ClickController extends Controller
             DB::beginTransaction();
             
             $user = Auth::user();
+            $user->load(['currentRank']);
             
-            // Validaciones anti-fraude
-            $validation = UserAdClick::validateClick(
-                $user->id, 
-                $request->ip(), 
-                $request->userAgent()
-            );
+            $todayMiniClicks = $user->adClicks()->whereDate('clicked_at', today())->where('ad_type', 'mini')->count();
+            $maxMiniClicks = $user->currentRank->mini_ads_daily ?? 1;
             
-            if (!$validation['valid']) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validation['reason']
-                ], 400);
-            }
-            
-            // Verificar si puede hacer clicks en mini-anuncios
-            if (!$user->canClickMiniAds()) {
+            if ($todayMiniClicks >= $maxMiniClicks) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No tienes mini-anuncios disponibles hoy'
                 ], 400);
             }
             
-            // Procesar click
-            $click = $user->clickMiniAd();
+            $earnings = $user->calculateMiniAdEarnings();
+            
+            UserAdClick::create([
+                'user_id' => $user->id,
+                'ad_id' => null,
+                'ad_type' => 'mini',
+                'clicked_at' => now(),
+                'earnings' => $earnings,
+                'ip_address' => $request->ip()
+            ]);
+            
+            $user->wallet_balance += $earnings;
+            $user->save();
             
             DB::commit();
             
+            $remaining = $maxMiniClicks - ($todayMiniClicks + 1);
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Mini-anuncio clickeado exitosamente',
-                'earnings' => $click->earnings,
-                'remaining_mini_clicks' => $user->currentRank->mini_ads_daily - $user->getTodayMiniAdsClicks(),
-                'wallet_balance' => $user->getAvailableBalance()
+                'message' => "¡Ganaste $$earnings!",
+                'earnings' => number_format($earnings, 2),
+                'remaining_mini_clicks' => $remaining,
+                'new_balance' => number_format($user->wallet_balance, 2)
             ]);
             
         } catch (\Exception $e) {
             DB::rollBack();
-            
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -179,50 +172,48 @@ class ClickController extends Controller
             DB::beginTransaction();
             
             $user = Auth::user();
-            
-            // Validaciones anti-fraude
-            $validation = UserAdClick::validateClick(
-                $user->id, 
-                $request->ip(), 
-                $request->userAgent()
-            );
-            
-            if (!$validation['valid']) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validation['reason']
-                ], 400);
-            }
-            
-            // Obtener mega ad del usuario
             $megaAd = $user->getCurrentMegaAd();
             
-            if (!$megaAd || !$megaAd->canClick()) {
+            if (!$megaAd || $megaAd->clicks_remaining <= 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No tienes mega-anuncios disponibles este mes'
                 ], 400);
             }
             
-            // Procesar click
-            $click = $megaAd->recordClick();
+            $earnings = 2000;
+            
+            UserAdClick::create([
+                'user_id' => $user->id,
+                'ad_id' => null,
+                'ad_type' => 'mega',
+                'clicked_at' => now(),
+                'earnings' => $earnings,
+                'ip_address' => $request->ip()
+            ]);
+            
+            $megaAd->clicks_used++;
+            $megaAd->clicks_remaining--;
+            $megaAd->save();
+            
+            $user->wallet_balance += $earnings;
+            $user->save();
             
             DB::commit();
             
             return response()->json([
                 'success' => true,
-                'message' => '¡Mega-anuncio clickeado! Ganaste $2,000',
-                'earnings' => $click->earnings,
+                'message' => "¡Ganaste $$earnings!",
+                'earnings' => number_format($earnings, 2),
                 'remaining_mega_clicks' => $megaAd->clicks_remaining,
-                'wallet_balance' => $user->getAvailableBalance()
+                'new_balance' => number_format($user->wallet_balance, 2)
             ]);
             
         } catch (\Exception $e) {
             DB::rollBack();
-            
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }

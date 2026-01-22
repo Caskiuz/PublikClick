@@ -62,10 +62,10 @@
                             </div>
                             
                             <div class="text-center">
-                                <button onclick="purchasePackage({{ $package->id }})" 
-                                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
+                                <a href="{{ route('payments.select-method', $package) }}" 
+                                   class="block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
                                     Comprar Paquete
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>

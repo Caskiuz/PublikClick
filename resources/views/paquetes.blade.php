@@ -69,7 +69,7 @@
                             Soporte básico
                         </li>
                     </ul>
-                    <button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-colors">
+                    <button onclick="window.location.href='/payments/1/select-method'" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-colors">
                         Adquirir Paquete
                     </button>
                 </div>
@@ -101,7 +101,7 @@
                             Soporte prioritario
                         </li>
                     </ul>
-                    <button class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition-colors">
+                    <button onclick="window.location.href='/payments/2/select-method'" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition-colors">
                         Adquirir Paquete
                     </button>
                 </div>
@@ -130,7 +130,7 @@
                             Soporte VIP
                         </li>
                     </ul>
-                    <button class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-lg transition-colors">
+                    <button onclick="window.location.href='/payments/3/select-method'" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-lg transition-colors">
                         Adquirir Paquete
                     </button>
                 </div>
@@ -159,7 +159,7 @@
                             Mini-anuncios extra
                         </li>
                     </ul>
-                    <button class="w-full bg-white text-purple-600 font-bold py-3 rounded-lg hover:bg-gray-100 transition-colors">
+                    <button onclick="window.location.href='/payments/5/select-method'" class="w-full bg-white text-purple-600 font-bold py-3 rounded-lg hover:bg-gray-100 transition-colors">
                         Adquirir Paquete
                     </button>
                 </div>
@@ -219,4 +219,5 @@
         </div>
     </div>
 </div>
+
 @endsection

@@ -30,70 +30,33 @@ class PackageController extends Controller
     
     public function purchase(Request $request, Package $package)
     {
-        $request->validate([
-            'currency' => 'required|in:COP,USD',
-            'payment_method' => 'required|string',
-            'nequi_phone' => 'required_if:payment_method,nequi|string|max:20'
-        ]);
-        
-        $user = Auth::user();
-        
-        // Validar que el paquete esté activo
-        if (!$package->is_active) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Este paquete no está disponible'
-            ]);
-        }
-        
-        DB::beginTransaction();
-        
         try {
-            $amount = $request->currency === 'USD' ? $package->price_usd : $package->price_cop;
+            $user = Auth::user();
             
-            // Activar paquete para el usuario
-            $user->current_package_id = $package->id;
-            $user->package_purchased_at = now();
-            
-            // Actualizar teléfono Nequi si se proporciona
-            if ($request->nequi_phone) {
-                $user->nequi_phone = $request->nequi_phone;
+            if (!$package->is_active) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Este paquete no está disponible'
+                ], 400);
             }
             
+            // Aquí integrarías el pago con Nequi
+            // Por ahora solo activa el paquete
+            $user->current_package_id = $package->id;
+            $user->package_purchased_at = now();
             $user->save();
-            
-            // Actualizar rango del usuario
-            $user->updateRank();
-            
-            // Crear mega ads para el mes actual
-            MegaAd::getOrCreateForUser($user->id);
-            
-            // Registrar transacción
-            Transaction::create([
-                'user_id' => $user->id,
-                'type' => 'package_purchase',
-                'amount' => -$amount,
-                'description' => "Compra de paquete: {$package->name}",
-                'status' => 'completed'
-            ]);
-            
-            DB::commit();
             
             return response()->json([
                 'success' => true,
-                'message' => "¡Paquete {$package->name} activado exitosamente! Ya puedes comenzar a hacer clicks.",
-                'package' => $package,
-                'user_rank' => $user->currentRank->name ?? 'Jade',
+                'message' => "¡Paquete {$package->name} activado! Procesa el pago de \${$package->price_usd} por Nequi.",
                 'redirect' => route('dashboard')
             ]);
             
         } catch (\Exception $e) {
-            DB::rollback();
-            
             return response()->json([
                 'success' => false,
-                'message' => 'Error al procesar la compra: ' . $e->getMessage()
-            ]);
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
     }
     

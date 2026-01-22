@@ -6,7 +6,9 @@ use App\Http\Controllers\ClickController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\WithdrawalController;
 use App\Http\Controllers\AdminController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\PaymentSettingsController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\CurrencyController;
 
 Route::get('/', function () {
     return view('landing');
@@ -51,6 +53,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/{package}/purchase', [PackageController::class, 'purchase'])->name('purchase');
     });
     
+    // Rutas de pagos
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/{package}/select-method', [PaymentController::class, 'selectMethod'])->name('select-method');
+        Route::post('/{package}/process', [PaymentController::class, 'processPayment'])->name('process');
+        Route::get('/{package}/checkout', [PaymentController::class, 'checkout'])->name('checkout');
+    });
+    
     // Rutas de retiros
     Route::prefix('withdrawals')->name('withdrawals.')->group(function () {
         Route::get('/', [WithdrawalController::class, 'index'])->name('index');
@@ -58,16 +67,24 @@ Route::middleware('auth')->group(function () {
         Route::post('/{transaction}/cancel', [WithdrawalController::class, 'cancel'])->name('cancel');
         Route::get('/history', [WithdrawalController::class, 'history'])->name('history');
     });
+    
+    // Ruta de cambio de moneda
+    Route::post('/currency/change', [CurrencyController::class, 'change'])->name('currency.change');
 });
 
 // Rutas administrativas
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard']);
     Route::get('/users', [AdminController::class, 'users']);
     Route::get('/withdrawals', [AdminController::class, 'withdrawals']);
     Route::post('/withdrawals/{transaction}/approve', [AdminController::class, 'approveWithdrawal']);
     Route::post('/withdrawals/{transaction}/reject', [AdminController::class, 'rejectWithdrawal']);
     Route::get('/reports', [AdminController::class, 'reports']);
+    
+    // Payment Settings
+    Route::get('/payment-settings', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'index'])->name('payment-settings');
+    Route::put('/payment-settings/{gateway}', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'update'])->name('payment-settings.update');
+    Route::post('/payment-settings/{gateway}/toggle', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'toggle'])->name('payment-settings.toggle');
 });
 
 Route::get('/test', function () {

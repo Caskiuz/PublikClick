@@ -17,20 +17,39 @@ class AuthController extends Controller
     
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-        
-        if (Auth::attempt($request->only('email', 'password'))) {
-            if ($request->expectsJson()) {
-                return response()->json(['success' => true]);
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos inválidos',
+                    'errors' => $e->errors()
+                ], 422);
             }
-            return redirect()->route('dashboard');
+            throw $e;
         }
         
-        if ($request->expectsJson()) {
-            return response()->json(['message' => 'Credenciales incorrectas'], 401);
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $request->session()->regenerate();
+            
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'redirect' => route('dashboard')
+                ]);
+            }
+            return redirect()->intended(route('dashboard'));
+        }
+        
+        if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Credenciales incorrectas'
+            ], 422);
         }
         return back()->withErrors(['email' => 'Credenciales incorrectas']);
     }

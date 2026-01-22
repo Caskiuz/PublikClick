@@ -13,19 +13,20 @@ class DashboardController extends Controller
         $user = Auth::user();
         if (!$user) return redirect()->route('login');
         
-        $user->load(['currentPackage', 'currentRank', 'withdrawalWallet', 'donationWallet', 'activeReferrals']);
+        // Cache de datos del usuario por 5 minutos
+        $cacheKey = 'user_dashboard_' . $user->id;
+        $data = \Cache::remember($cacheKey, 300, function() use ($user) {
+            $user->load(['currentPackage', 'currentRank', 'withdrawalWallet', 'donationWallet', 'activeReferrals']);
+            
+            return [
+                'todayMainClicks' => $user->adClicks()->whereDate('clicked_at', today())->where('ad_type', 'main')->count(),
+                'todayMiniClicks' => $user->adClicks()->whereDate('clicked_at', today())->where('ad_type', 'mini')->count(),
+                'megaAd' => $user->getCurrentMegaAd(),
+                'availableAds' => \App\Models\Ad::where('is_active', true)->inRandomOrder()->limit(5)->get()
+            ];
+        });
         
-        // Estadísticas de clicks de hoy
-        $todayMainClicks = $user->adClicks()->whereDate('clicked_at', today())->where('ad_type', 'main')->count();
-        $todayMiniClicks = $user->adClicks()->whereDate('clicked_at', today())->where('ad_type', 'mini')->count();
-        
-        // Mega ad del mes
-        $megaAd = $user->getCurrentMegaAd();
-        
-        // Anuncios disponibles
-        $availableAds = Ad::where('is_active', true)->inRandomOrder()->limit(5)->get();
-        
-        return view('dashboard-simple', compact('user', 'todayMainClicks', 'todayMiniClicks', 'megaAd', 'availableAds'));
+        return view('dashboard-simple', array_merge(compact('user'), $data));
     }
 
     public function anuncios()

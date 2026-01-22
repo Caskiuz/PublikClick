@@ -11,7 +11,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-lg font-semibold mb-2">Cartera Retiro</h3>
-                    <p class="text-4xl font-bold">${{ number_format($user->withdrawalWallet->balance ?? 0, 2) }}</p>
+                    <p class="text-4xl font-bold">${{ number_format($user->wallet_balance ?? 0, 2) }}</p>
                     <p class="text-green-100 mt-2">Disponible para retirar</p>
                 </div>
                 <div class="text-right">
@@ -24,7 +24,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-lg font-semibold mb-2">Cartera Donación</h3>
-                    <p class="text-4xl font-bold">${{ number_format($user->donationWallet->balance ?? 0, 2) }}</p>
+                    <p class="text-4xl font-bold">$0.00</p>
                     <p class="text-blue-100 mt-2">Acumulado en donaciones</p>
                 </div>
                 <div class="text-right">
@@ -45,7 +45,7 @@
                 @csrf
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Monto a retirar</label>
-                    <input type="number" id="amount" step="0.01" min="10" max="{{ $user->withdrawalWallet->balance ?? 0 }}" 
+                    <input type="number" id="amount" step="0.01" min="10" max="{{ $user->wallet_balance ?? 0 }}" 
                            placeholder="Mínimo $10.00" required
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
                 </div>
@@ -75,24 +75,24 @@
             <div class="space-y-4">
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">Total ganado:</span>
-                    <span class="font-semibold">${{ number_format($user->getTotalEarnings(), 2) }}</span>
+                    <span class="font-semibold">${{ number_format($user->wallet_balance ?? 0, 2) }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">Cartera retiro:</span>
-                    <span class="font-semibold text-green-600">${{ number_format($user->withdrawalWallet->total_earned ?? 0, 2) }}</span>
+                    <span class="font-semibold text-green-600">${{ number_format($user->wallet_balance ?? 0, 2) }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">Cartera donación:</span>
-                    <span class="font-semibold text-blue-600">${{ number_format($user->donationWallet->total_earned ?? 0, 2) }}</span>
+                    <span class="font-semibold text-blue-600">$0.00</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">Total retirado:</span>
-                    <span class="font-semibold text-red-600">${{ number_format($user->withdrawalWallet->total_withdrawn ?? 0, 2) }}</span>
+                    <span class="font-semibold text-red-600">$0.00</span>
                 </div>
                 <hr>
                 <div class="flex justify-between items-center font-bold text-lg">
                     <span>Balance actual:</span>
-                    <span class="text-green-600">${{ number_format($user->getAvailableBalance(), 2) }}</span>
+                    <span class="text-green-600">${{ number_format($user->wallet_balance ?? 0, 2) }}</span>
                 </div>
             </div>
         </div>
