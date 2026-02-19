@@ -7,7 +7,7 @@ class CurrencyHelper
     // Tasas de cambio base (1 USD = X moneda)
     public static $rates = [
         'USD' => 1,
-        'COP' => 4000,      // 1 USD = 4000 COP
+        'COP' => 4200,      // 1 USD = 4200 COP
         'EUR' => 0.92,      // 1 USD = 0.92 EUR
         'MXN' => 17,        // 1 USD = 17 MXN
         'ARS' => 350,       // 1 USD = 350 ARS
@@ -43,16 +43,19 @@ class CurrencyHelper
     /**
      * Formatear monto con símbolo de moneda
      */
-    public static function format($amount, $currency = 'USD', $decimals = 2)
+    public static function format($amount, $currency = 'USD', $decimals = null)
     {
         $symbol = self::$symbols[$currency] ?? '$';
         
-        // Para monedas con valores grandes (COP, ARS, CLP), no usar decimales
-        if (in_array($currency, ['COP', 'ARS', 'CLP'])) {
-            $decimals = 0;
+        // Si no se especifica decimales, usar 2 por defecto para todas las monedas
+        if ($decimals === null) {
+            $decimals = 2;
         }
         
-        return $symbol . number_format($amount, $decimals);
+        // Asegurar que decimals sea int
+        $decimals = (int) $decimals;
+        
+        return $symbol . number_format($amount, $decimals, '.', ',');
     }
 
     /**
@@ -61,7 +64,7 @@ class CurrencyHelper
     public static function getAvailableCurrencies()
     {
         return [
-            'USD' => 'Dólar (USD)',
+            'USD' => 'Dólar Estadounidense (USD)',
             'COP' => 'Peso Colombiano (COP)',
             'EUR' => 'Euro (EUR)',
             'MXN' => 'Peso Mexicano (MXN)',

@@ -30,7 +30,13 @@ class User extends Authenticatable
         'bank_info',
         'is_active',
         'is_admin',
-        'nequi_phone'
+        'nequi_phone',
+        'whatsapp',
+        'avatar',
+        'country',
+        'state',
+        'city',
+        'stars'
     ];
 
     /**
@@ -116,6 +122,11 @@ class User extends Authenticatable
         return $this->hasMany(MegaAd::class);
     }
 
+    public function advertisements()
+    {
+        return $this->hasMany(UserAdvertisement::class);
+    }
+
     // Métodos de negocio para clicks
     public function getTodayClicksCount()
     {
@@ -180,43 +191,13 @@ class User extends Authenticatable
     public function calculateMainAdEarnings()
     {
         if (!$this->currentPackage) return 0;
-        
-        // Usar valores de la base de datos si existen
-        if (isset($this->currentPackage->main_ad_value)) {
-            return $this->currentPackage->main_ad_value;
-        }
-        
-        // Fallback a valores según el ROADMAP
-        $packageEarnings = [
-            25 => 400,
-            50 => 600,
-            100 => 1120,
-            150 => 1600,
-            200 => 1800  // Elite según ROADMAP
-        ];
-        
-        return $packageEarnings[$this->currentPackage->price_usd] ?? 0;
+        return \App\Services\EconomicConfig::getMainAdValue((int) $this->currentPackage->price_usd);
     }
 
     public function calculateMiniAdEarnings()
     {
         if (!$this->currentPackage) return 0;
-        
-        // Usar valores de la base de datos si existen
-        if (isset($this->currentPackage->mini_ad_value)) {
-            return $this->currentPackage->mini_ad_value;
-        }
-        
-        // Fallback a valores según el ROADMAP
-        $packageEarnings = [
-            25 => 83.33,
-            50 => 425,
-            100 => 100,
-            150 => 600,
-            200 => 800  // Elite según ROADMAP
-        ];
-        
-        return $packageEarnings[$this->currentPackage->price_usd] ?? 0;
+        return \App\Services\EconomicConfig::getMiniAdValue((int) $this->currentPackage->price_usd);
     }
 
     public function clickMainAd($adId)
@@ -225,31 +206,7 @@ class User extends Authenticatable
             throw new \Exception('Ya has completado tus 5 clicks diarios');
         }
         
-        $earnings = $this->calculateMainAdEarnings();
-        $donationAmount = 10; // Fijo $10 para donación
-        $withdrawalAmount = $earnings - $donationAmount;
-        
-        // Crear click
-        $click = $this->adClicks()->create([
-            'ad_id' => $adId,
-            'ad_type' => 'main',
-            'clicked_at' => now(),
-            'earnings' => $earnings,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent()
-        ]);
-        
-        // Distribuir ganancias
-        $this->withdrawalWallet->addFunds($withdrawalAmount, "Click en anuncio principal");
-        $this->donationWallet->addFunds($donationAmount, "Donación por click principal");
-        
-        // Pagar comisión al referidor
-        if ($this->referrer && $this->referrer->currentRank) {
-            $commission = $this->referrer->currentRank->referral_commission;
-            $this->referrer->withdrawalWallet->addFunds($commission, "Comisión por click de referido");
-        }
-        
-        return $click;
+        return redirect()->route('view.ad', ['type' => 'main', 'ad' => $adId]);
     }
 
     public function clickMiniAd()

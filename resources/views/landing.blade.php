@@ -250,15 +250,17 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- Basic Package -->
+                <!-- Basic Package $25 -->
                 <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-primary transition-colors">
                     <div class="text-center">
                         <h3 class="text-xl font-bold text-dark mb-2">Básico</h3>
                         <div class="text-3xl font-bold text-primary mb-4">$25</div>
-                        <ul class="text-left space-y-2 mb-6">
+                        <ul class="text-left space-y-2 mb-6 text-sm">
                             <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> 5 clicks diarios</li>
-                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> $0.10 por click</li>
-                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> Comisiones nivel 1</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> $400 COP/click</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> 4 mini-anuncios</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> Categoría Jade</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> $69,999/mes</li>
                         </ul>
                         <button onclick="openLoginModal()" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-blue-600 transition-colors">
                             Comenzar
@@ -266,7 +268,7 @@
                     </div>
                 </div>
 
-                <!-- Premium Package -->
+                <!-- Premium Package $50 -->
                 <div class="bg-white border-2 border-secondary rounded-xl p-6 relative">
                     <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
                         <span class="bg-secondary text-white px-4 py-1 rounded-full text-sm font-semibold">Popular</span>
@@ -274,10 +276,12 @@
                     <div class="text-center">
                         <h3 class="text-xl font-bold text-dark mb-2">Premium</h3>
                         <div class="text-3xl font-bold text-secondary mb-4">$50</div>
-                        <ul class="text-left space-y-2 mb-6">
+                        <ul class="text-left space-y-2 mb-6 text-sm">
                             <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> 5 clicks diarios</li>
-                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> $0.15 por click</li>
-                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> Comisiones 2 niveles</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> $600 COP/click</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> 4 mini-anuncios</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> Categoría Jade</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> $141,000/mes</li>
                         </ul>
                         <button onclick="openLoginModal()" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-green-600 transition-colors">
                             Comenzar
@@ -285,15 +289,17 @@
                     </div>
                 </div>
 
-                <!-- VIP Package -->
+                <!-- VIP Package $100 -->
                 <div class="bg-white border-2 border-accent rounded-xl p-6">
                     <div class="text-center">
-                        <h3 class="text-xl font-bold text-dark mb-2">VIP</h3>
+                        <h3 class="text-xl font-bold text-dark mb-2">Avanzado</h3>
                         <div class="text-3xl font-bold text-accent mb-4">$100</div>
-                        <ul class="text-left space-y-2 mb-6">
+                        <ul class="text-left space-y-2 mb-6 text-sm">
                             <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> 5 clicks diarios</li>
-                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> $0.20 por click</li>
-                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> Comisiones 3 niveles</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> $1,120 COP/click</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> 4 mini-anuncios</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> Categoría Esmeralda</li>
+                            <li class="flex items-center"><i class="fas fa-check text-secondary mr-2"></i> $180,000/mes</li>
                         </ul>
                         <button onclick="openLoginModal()" class="w-full bg-accent text-white py-3 rounded-lg hover:bg-yellow-600 transition-colors">
                             Comenzar
@@ -301,16 +307,17 @@
                     </div>
                 </div>
 
-                <!-- Elite Package -->
+                <!-- Elite Package $150 -->
                 <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6">
                     <div class="text-center">
                         <h3 class="text-xl font-bold mb-2">Elite</h3>
-                        <div class="text-3xl font-bold mb-4">$200</div>
-                        <ul class="text-left space-y-2 mb-6">
+                        <div class="text-3xl font-bold mb-4">$150</div>
+                        <ul class="text-left space-y-2 mb-6 text-sm">
                             <li class="flex items-center"><i class="fas fa-check mr-2"></i> 5 clicks diarios</li>
-                            <li class="flex items-center"><i class="fas fa-check mr-2"></i> $0.25 por click</li>
-                            <li class="flex items-center"><i class="fas fa-check mr-2"></i> Comisiones 3 niveles</li>
-                            <li class="flex items-center"><i class="fas fa-check mr-2"></i> Mini-anuncios extra</li>
+                            <li class="flex items-center"><i class="fas fa-check mr-2"></i> $1,600 COP/click</li>
+                            <li class="flex items-center"><i class="fas fa-check mr-2"></i> 8 mini-anuncios</li>
+                            <li class="flex items-center"><i class="fas fa-check mr-2"></i> Categoría Esmeralda</li>
+                            <li class="flex items-center"><i class="fas fa-check mr-2"></i> $384,000/mes</li>
                         </ul>
                         <button onclick="openLoginModal()" class="w-full bg-white text-purple-600 py-3 rounded-lg hover:bg-gray-100 transition-colors font-semibold">
                             Comenzar
@@ -423,37 +430,24 @@
             </form>
 
             <!-- Register Form -->
-            <form x-show="!isLogin" class="space-y-4" onsubmit="handleRegister(event)">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
-                    <input type="text" id="registerName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Tu nombre completo" required>
+            <div x-show="!isLogin" class="space-y-4">
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
+                    <p class="text-yellow-700 text-sm">
+                        <strong>⚠️ Importante:</strong> Para registrarte necesitas un código de referido de alguien que ya esté en el sistema.
+                    </p>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input type="email" id="registerEmail" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="tu@email.com" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
-                    <input type="password" id="registerPassword" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="••••••••" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirmar Contraseña</label>
-                    <input type="password" id="registerPasswordConfirm" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="••••••••" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Código de Referido (Opcional)</label>
-                    <input type="text" id="registerReferralCode" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Código de quien te refirió">
-                </div>
-                <div id="registerError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"></div>
-                <button type="submit" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-green-600 transition-colors font-semibold">
-                    Registrarse
-                </button>
+                <p class="text-gray-600 text-center mb-4">
+                    El registro completo requiere más información. Serás redirigido al formulario de registro.
+                </p>
+                <a href="{{ route('register') }}" class="block w-full bg-secondary text-white py-3 rounded-lg hover:bg-green-600 transition-colors font-semibold text-center">
+                    Ir al Formulario de Registro
+                </a>
                 <div class="text-center">
                     <button type="button" @click="isLogin = true" class="text-primary hover:underline">
                         ¿Ya tienes cuenta? Inicia sesión
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -482,10 +476,7 @@
             const errorDiv = document.getElementById('loginError');
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             
-            // Limpiar errores previos
             errorDiv.classList.add('hidden');
-            
-            console.log('CSRF Token:', csrfToken);
             
             if (!csrfToken) {
                 errorDiv.textContent = 'Error de seguridad: Token CSRF no encontrado';
@@ -502,15 +493,10 @@
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
+                    body: JSON.stringify({ email, password })
                 });
                 
-                console.log('Response status:', response.status);
                 const data = await response.json();
-                console.log('Response data:', data);
                 
                 if (response.ok && data.success) {
                     window.location.href = data.redirect || '/dashboard';
@@ -519,66 +505,6 @@
                     errorDiv.classList.remove('hidden');
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                errorDiv.textContent = 'Error de conexión';
-                errorDiv.classList.remove('hidden');
-            }
-        }
-
-        async function handleRegister(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
-            const referralCode = document.getElementById('registerReferralCode').value;
-            const errorDiv = document.getElementById('registerError');
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            
-            // Limpiar errores previos
-            errorDiv.classList.add('hidden');
-            
-            if (password !== passwordConfirm) {
-                errorDiv.textContent = 'Las contraseñas no coinciden';
-                errorDiv.classList.remove('hidden');
-                return;
-            }
-            
-            if (!csrfToken) {
-                errorDiv.textContent = 'Error de seguridad: Token CSRF no encontrado';
-                errorDiv.classList.remove('hidden');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ 
-                        name: name, 
-                        email: email, 
-                        password: password, 
-                        password_confirmation: passwordConfirm,
-                        referral_code: referralCode 
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok && data.success) {
-                    window.location.href = '/dashboard';
-                } else {
-                    errorDiv.textContent = data.message || 'Error en el registro';
-                    errorDiv.classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error('Register error:', error);
                 errorDiv.textContent = 'Error de conexión';
                 errorDiv.classList.remove('hidden');
             }

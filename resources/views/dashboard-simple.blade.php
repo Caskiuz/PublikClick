@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard - PubliClick</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-100">
     <div class="flex h-screen">
@@ -65,6 +67,45 @@
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
                     <div class="flex items-center space-x-4">
+                        <!-- Selector de Moneda -->
+                        <div class="relative">
+                            <button onclick="toggleCurrencyMenu()" class="flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                                <i class="fas fa-globe"></i>
+                                <span class="font-semibold">{{ Auth::user()->currency ?? 'COP' }}</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            
+                            <div id="currencyMenu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border z-50">
+                                <div class="p-2">
+                                    <div class="text-xs text-gray-500 uppercase font-semibold px-3 py-2">Seleccionar Moneda</div>
+                                    @php
+                                        $currencies = [
+                                            'USD' => ['name' => 'Dólar', 'flag' => '🇺🇸'],
+                                            'COP' => ['name' => 'Peso Colombiano', 'flag' => '🇨🇴'],
+                                            'EUR' => ['name' => 'Euro', 'flag' => '🇪🇺'],
+                                            'MXN' => ['name' => 'Peso Mexicano', 'flag' => '🇲🇽'],
+                                            'ARS' => ['name' => 'Peso Argentino', 'flag' => '🇦🇷'],
+                                            'BRL' => ['name' => 'Real Brasileño', 'flag' => '🇧🇷'],
+                                            'CLP' => ['name' => 'Peso Chileno', 'flag' => '🇨🇱'],
+                                            'PEN' => ['name' => 'Sol Peruano', 'flag' => '🇵🇪'],
+                                        ];
+                                    @endphp
+                                    @foreach($currencies as $code => $info)
+                                    <button onclick="changeCurrency('{{ $code }}')" class="w-full flex items-center space-x-3 px-3 py-2 hover:bg-blue-50 rounded transition-colors {{ (Auth::user()->currency ?? 'COP') === $code ? 'bg-blue-100 text-blue-600' : 'text-gray-700' }}">
+                                        <span class="text-xl">{{ $info['flag'] }}</span>
+                                        <div class="flex-1 text-left">
+                                            <div class="font-medium">{{ $code }}</div>
+                                            <div class="text-xs text-gray-500">{{ $info['name'] }}</div>
+                                        </div>
+                                        @if((Auth::user()->currency ?? 'COP') === $code)
+                                        <i class="fas fa-check text-blue-600"></i>
+                                        @endif
+                                    </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        
                         <span class="text-gray-600">{{ Auth::user()->name ?? 'Usuario' }}</span>
                         <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
                             {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
@@ -84,7 +125,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-lg font-semibold text-gray-700">Balance Retiro</h3>
-                                <p class="text-2xl font-bold text-green-600">${{ number_format($user->wallet_balance ?? 0, 2) }}</p>
+                                <p class="text-2xl font-bold text-green-600">{{ formatCurrency($user->withdrawalWallet->balance ?? 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -138,7 +179,7 @@
                         <div class="text-center mb-4">
                             <p class="text-3xl font-bold text-blue-600">{{ 5 - $todayMainClicks }}</p>
                             <p class="text-gray-600">Clicks disponibles hoy</p>
-                            <p class="text-sm text-green-600">${{ number_format($user->calculateMainAdEarnings(), 2) }} por click</p>
+                            <p class="text-sm text-green-600">{{ formatCurrency($user->calculateMainAdEarnings()) }} por click</p>
                         </div>
                         @if($todayMainClicks < 5 && $availableAds->count() > 0)
                             <button onclick="clickMainAd({{ $availableAds->first()->id }})" 
@@ -162,7 +203,7 @@
                         <div class="text-center mb-4">
                             <p class="text-3xl font-bold text-yellow-600">{{ ($user->currentRank->mini_ads_daily ?? 1) - $todayMiniClicks }}</p>
                             <p class="text-gray-600">Clicks disponibles hoy</p>
-                            <p class="text-sm text-green-600">${{ number_format($user->calculateMiniAdEarnings(), 2) }} por click</p>
+                            <p class="text-sm text-green-600">{{ formatCurrency($user->calculateMiniAdEarnings()) }} por click</p>
                         </div>
                         @if($todayMiniClicks < ($user->currentRank->mini_ads_daily ?? 1))
                             <button onclick="clickMiniAd()" 
@@ -186,7 +227,7 @@
                         <div class="text-center mb-4">
                             <p class="text-3xl font-bold text-purple-600">{{ $megaAd->clicks_remaining ?? ($user->currentRank->mega_ads_monthly ?? 10) }}</p>
                             <p class="text-gray-600">Clicks este mes</p>
-                            <p class="text-sm text-green-600">$2,000 por click</p>
+                            <p class="text-sm text-green-600">{{ formatCurrency(2000) }} por click</p>
                         </div>
                         @if(!$megaAd || $megaAd->clicks_remaining > 0)
                             <button onclick="clickMegaAd()" 
@@ -258,6 +299,59 @@
     </div>
 
     <script>
+        function toggleCurrencyMenu() {
+            const menu = document.getElementById('currencyMenu');
+            menu.classList.toggle('hidden');
+        }
+        
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('currencyMenu');
+            const button = event.target.closest('button[onclick="toggleCurrencyMenu()"]');
+            
+            if (!button && !menu.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+        
+        async function changeCurrency(currency) {
+            try {
+                const response = await fetch('/currency/change', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content || '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ currency: currency })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Moneda actualizada!',
+                        text: `Ahora verás los valores en ${currency}`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo cambiar la moneda'
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ocurrió un error al cambiar la moneda'
+                });
+            }
+        }
+        
         function showNotification(title, message, type = 'success') {
             const modal = document.getElementById('notificationModal');
             const icon = document.getElementById('notificationIcon');
@@ -294,13 +388,26 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showNotification('¡Ganaste!', `Ganaste $${data.earnings}! Clicks restantes: ${data.remaining_clicks}`, 'success');
-                    setTimeout(() => location.reload(), 2000);
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Ganaste!',
+                        html: `Ganaste <strong>${data.earnings}</strong><br>Clicks restantes: ${data.remaining_clicks}`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
                 } else {
-                    showNotification('Error', data.message, 'error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
                 }
             } catch (error) {
-                showNotification('Error', 'Error al procesar el click', 'error');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al procesar el click'
+                });
             }
         }
 
@@ -317,13 +424,26 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showNotification('¡Ganaste!', `Ganaste $${data.earnings}! Mini-clicks restantes: ${data.remaining_mini_clicks}`, 'success');
-                    setTimeout(() => location.reload(), 2000);
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Ganaste!',
+                        html: `Ganaste <strong>${data.earnings}</strong><br>Mini-clicks restantes: ${data.remaining_mini_clicks}`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
                 } else {
-                    showNotification('Error', data.message, 'error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
                 }
             } catch (error) {
-                showNotification('Error', 'Error al procesar el click', 'error');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al procesar el click'
+                });
             }
         }
 
@@ -340,13 +460,26 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showNotification('¡MEGA-CLICK!', `Ganaste $${data.earnings}! Mega-clicks restantes: ${data.remaining_mega_clicks}`, 'success');
-                    setTimeout(() => location.reload(), 2000);
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡MEGA-CLICK!',
+                        html: `Ganaste <strong>${data.earnings}</strong><br>Mega-clicks restantes: ${data.remaining_mega_clicks}`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
                 } else {
-                    showNotification('Error', data.message, 'error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
                 }
             } catch (error) {
-                showNotification('Error', 'Error al procesar el click', 'error');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al procesar el click'
+                });
             }
         }
     </script>

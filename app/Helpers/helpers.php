@@ -2,38 +2,61 @@
 
 use App\Helpers\CurrencyHelper;
 
+if (!function_exists('formatCurrency')) {
+    /**
+     * Formatear monto - asume que el valor viene en COP
+     */
+    function formatCurrency($amountCOP, $currency = null, $decimals = null)
+    {
+        $user = auth()->user();
+        if (!$currency) {
+            $currency = $user ? ($user->currency ?? 'COP') : 'COP';
+        }
+        
+        // Si el usuario quiere ver en COP, mostrar directo
+        if ($currency === 'COP') {
+            return CurrencyHelper::format($amountCOP, 'COP', $decimals);
+        }
+        
+        // Convertir de COP a la moneda deseada
+        $amountUSD = $amountCOP / CurrencyHelper::$rates['COP']; // COP a USD
+        $convertedAmount = CurrencyHelper::convert($amountUSD, $currency);
+        return CurrencyHelper::format($convertedAmount, $currency, $decimals);
+    }
+}
+
 if (!function_exists('convertCurrency')) {
     /**
-     * Convertir de COP (base) a la moneda del usuario
+     * Convertir monto de COP a la moneda del usuario
      */
     function convertCurrency($amountCOP, $toCurrency = null)
     {
-        if (!$toCurrency && auth()->check()) {
-            $toCurrency = auth()->user()->currency ?? 'USD';
+        if (!$toCurrency) {
+            $user = auth()->user();
+            $toCurrency = $user ? ($user->currency ?? 'COP') : 'COP';
         }
         
-        $toCurrency = $toCurrency ?? 'USD';
+        if ($toCurrency === 'COP') {
+            return $amountCOP;
+        }
         
-        // Convertir de COP a USD primero (base)
+        // Convertir de COP a USD primero, luego a la moneda deseada
         $amountUSD = $amountCOP / CurrencyHelper::$rates['COP'];
-        
-        // Luego convertir de USD a la moneda destino
         return CurrencyHelper::convert($amountUSD, $toCurrency);
     }
 }
 
-if (!function_exists('formatCurrency')) {
+if (!function_exists('getCurrencySymbol')) {
     /**
-     * Formatear monto con símbolo de moneda del usuario
+     * Obtener símbolo de la moneda del usuario
      */
-    function formatCurrency($amount, $currency = null, $decimals = 2)
+    function getCurrencySymbol($currency = null)
     {
-        if (!$currency && auth()->check()) {
-            $currency = auth()->user()->currency ?? 'USD';
+        if (!$currency) {
+            $user = auth()->user();
+            $currency = $user ? ($user->currency ?? 'COP') : 'COP';
         }
         
-        $currency = $currency ?? 'USD';
-        
-        return CurrencyHelper::format($amount, $currency, $decimals);
+        return CurrencyHelper::$symbols[$currency] ?? '$';
     }
 }

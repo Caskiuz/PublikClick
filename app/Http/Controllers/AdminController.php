@@ -65,16 +65,29 @@ class AdminController extends Controller
     
     public function approveWithdrawal(Request $request, $transactionId)
     {
+        $request->validate([
+            'proof_image' => 'required|image|max:5120',
+            'admin_notes' => 'nullable|string|max:500'
+        ]);
+
         $transaction = Transaction::findOrFail($transactionId);
         
         if ($transaction->type !== 'withdrawal' || $transaction->status !== 'pending') {
-            return response()->json(['success' => false, 'message' => 'Transacción no válida']);
+            return back()->with('error', 'Transacción no válida');
         }
         
         DB::beginTransaction();
         
         try {
+            // Upload comprobante
+            $proofPath = $request->file('proof_image')->store('proofs', 'public');
+            
             $transaction->status = 'completed';
+            $transaction->proof_image = $proofPath;
+            $transaction->admin_notes = $request->admin_notes;
+            $transaction->processed_at = now();
+            $transaction->processed_by = auth()->id();
+            $transaction->requires_comment = true;
             $transaction->save();
             
             // Actualizar total_withdrawn en wallet
@@ -84,20 +97,22 @@ class AdminController extends Controller
             
             DB::commit();
             
-            return response()->json(['success' => true, 'message' => 'Retiro aprobado exitosamente']);
+            return back()->with('success', 'Retiro aprobado. Usuario debe comentar comprobante.');
             
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['success' => false, 'message' => 'Error al aprobar retiro']);
+            return back()->with('error', 'Error al aprobar retiro: ' . $e->getMessage());
         }
     }
     
     public function rejectWithdrawal(Request $request, $transactionId)
     {
+        $request->validate(['admin_notes' => 'required|string|max:500']);
+
         $transaction = Transaction::findOrFail($transactionId);
         
         if ($transaction->type !== 'withdrawal' || $transaction->status !== 'pending') {
-            return response()->json(['success' => false, 'message' => 'Transacción no válida']);
+            return back()->with('error', 'Transacción no válida');
         }
         
         DB::beginTransaction();
@@ -109,15 +124,18 @@ class AdminController extends Controller
             $wallet->save();
             
             $transaction->status = 'rejected';
+            $transaction->admin_notes = $request->admin_notes;
+            $transaction->processed_at = now();
+            $transaction->processed_by = auth()->id();
             $transaction->save();
             
             DB::commit();
             
-            return response()->json(['success' => true, 'message' => 'Retiro rechazado y fondos devueltos']);
+            return back()->with('success', 'Retiro rechazado y fondos devueltos');
             
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['success' => false, 'message' => 'Error al rechazar retiro']);
+            return back()->with('error', 'Error al rechazar retiro');
         }
     }
     

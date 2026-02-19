@@ -42,12 +42,14 @@ class Wallet extends Model
         $this->save();
 
         // Crear transacción
-        $this->transactions()->create([
+        Transaction::create([
             'user_id' => $this->user_id,
+            'wallet_id' => $this->id,
             'type' => 'credit',
             'amount' => $amount,
             'description' => $description ?? "Fondos agregados a cartera {$this->type}",
-            'status' => 'completed'
+            'status' => 'completed',
+            'currency' => 'COP'
         ]);
 
         return $this;
@@ -64,12 +66,14 @@ class Wallet extends Model
         $this->save();
 
         // Crear transacción
-        $this->transactions()->create([
+        Transaction::create([
             'user_id' => $this->user_id,
+            'wallet_id' => $this->id,
             'type' => 'debit',
             'amount' => $amount,
             'description' => $description ?? "Retiro de cartera {$this->type}",
-            'status' => 'pending'
+            'status' => 'pending',
+            'currency' => 'COP'
         ]);
 
         return $this;

@@ -6,6 +6,8 @@ use App\Models\Package;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use App\Models\MegaAd;
+use App\Models\AvailableAd;
+use App\Services\ReferralBonusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +33,8 @@ class PackageController extends Controller
     public function purchase(Request $request, Package $package)
     {
         try {
+            DB::beginTransaction();
+            
             $user = Auth::user();
             
             if (!$package->is_active) {
@@ -40,11 +44,34 @@ class PackageController extends Controller
                 ], 400);
             }
             
-            // Aquí integrarías el pago con Nequi
-            // Por ahora solo activa el paquete
+            // Activar paquete
             $user->current_package_id = $package->id;
             $user->package_purchased_at = now();
+            $user->is_active = true;
             $user->save();
+            
+            // Actualizar rango del usuario
+            $user->updateRank();
+            
+            // Generar anuncios iniciales
+            AvailableAd::generateForUser($user->id, 'main', 5);
+            AvailableAd::generateForUser($user->id, 'mini', $package->mini_ads_count);
+            
+            // Otorgar mega-anuncios al referidor
+            if ($user->referred_by) {
+                ReferralBonusService::grantMegaAdsForPurchase($user->id, $package->price_usd);
+            }
+            
+            // Crear transacción
+            Transaction::create([
+                'user_id' => $user->id,
+                'type' => 'package_purchase',
+                'amount' => $package->price_usd,
+                'description' => "Compra de paquete {$package->name}",
+                'status' => 'completed'
+            ]);
+            
+            DB::commit();
             
             return response()->json([
                 'success' => true,
@@ -53,6 +80,7 @@ class PackageController extends Controller
             ]);
             
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()

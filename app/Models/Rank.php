@@ -45,16 +45,17 @@ class Rank extends Model
 
     public static function seedRanks()
     {
+        $config = \App\Services\EconomicConfig::class;
         $ranks = [
-            ['name' => 'Jade', 'min_referrals' => 0, 'max_referrals' => 2, 'mega_ads_monthly' => 10, 'referral_commission' => 100, 'mini_ads_daily' => 1, 'order' => 1],
-            ['name' => 'Perla', 'min_referrals' => 3, 'max_referrals' => 5, 'mega_ads_monthly' => 25, 'referral_commission' => 200, 'mini_ads_daily' => 2, 'order' => 2],
-            ['name' => 'Zafiro', 'min_referrals' => 6, 'max_referrals' => 9, 'mega_ads_monthly' => 50, 'referral_commission' => 300, 'mini_ads_daily' => 3, 'order' => 3],
-            ['name' => 'Rubí', 'min_referrals' => 10, 'max_referrals' => 19, 'mega_ads_monthly' => 75, 'referral_commission' => 400, 'mini_ads_daily' => 4, 'order' => 4],
-            ['name' => 'Esmeralda', 'min_referrals' => 20, 'max_referrals' => 25, 'mega_ads_monthly' => 125, 'referral_commission' => 400, 'mini_ads_daily' => 5, 'order' => 5],
-            ['name' => 'Diamante', 'min_referrals' => 26, 'max_referrals' => 30, 'mega_ads_monthly' => 150, 'referral_commission' => 400, 'mini_ads_daily' => 5, 'order' => 6],
-            ['name' => 'Diamante Azul', 'min_referrals' => 31, 'max_referrals' => 35, 'mega_ads_monthly' => 175, 'referral_commission' => 400, 'mini_ads_daily' => 5, 'order' => 7],
-            ['name' => 'Diamante Negro', 'min_referrals' => 36, 'max_referrals' => 39, 'mega_ads_monthly' => 190, 'referral_commission' => 400, 'mini_ads_daily' => 5, 'order' => 8],
-            ['name' => 'Diamante Corona', 'min_referrals' => 40, 'max_referrals' => null, 'mega_ads_monthly' => 200, 'referral_commission' => 400, 'mini_ads_daily' => 5, 'order' => 9],
+            ['name' => 'Jade', 'min_referrals' => 0, 'max_referrals' => 2, 'mega_ads_monthly' => 10, 'referral_commission' => $config::getRankCommission('Jade'), 'mini_ads_daily' => $config::getUnlockedMinisCount('Jade'), 'order' => 1],
+            ['name' => 'Perla', 'min_referrals' => 3, 'max_referrals' => 5, 'mega_ads_monthly' => 25, 'referral_commission' => $config::getRankCommission('Perla'), 'mini_ads_daily' => $config::getUnlockedMinisCount('Perla'), 'order' => 2],
+            ['name' => 'Zafiro', 'min_referrals' => 6, 'max_referrals' => 9, 'mega_ads_monthly' => 50, 'referral_commission' => $config::getRankCommission('Zafiro'), 'mini_ads_daily' => $config::getUnlockedMinisCount('Zafiro'), 'order' => 3],
+            ['name' => 'Rubí', 'min_referrals' => 10, 'max_referrals' => 19, 'mega_ads_monthly' => 75, 'referral_commission' => $config::getRankCommission('Rubí'), 'mini_ads_daily' => $config::getUnlockedMinisCount('Rubí'), 'order' => 4],
+            ['name' => 'Esmeralda', 'min_referrals' => 20, 'max_referrals' => 25, 'mega_ads_monthly' => 125, 'referral_commission' => $config::getRankCommission('Esmeralda'), 'mini_ads_daily' => $config::getUnlockedMinisCount('Esmeralda'), 'order' => 5],
+            ['name' => 'Diamante', 'min_referrals' => 26, 'max_referrals' => 30, 'mega_ads_monthly' => 150, 'referral_commission' => $config::getRankCommission('Diamante'), 'mini_ads_daily' => $config::getUnlockedMinisCount('Diamante'), 'order' => 6],
+            ['name' => 'Diamante Azul', 'min_referrals' => 31, 'max_referrals' => 35, 'mega_ads_monthly' => 175, 'referral_commission' => $config::getRankCommission('Diamante Azul'), 'mini_ads_daily' => $config::getUnlockedMinisCount('Diamante Azul'), 'order' => 7],
+            ['name' => 'Diamante Negro', 'min_referrals' => 36, 'max_referrals' => 39, 'mega_ads_monthly' => 190, 'referral_commission' => $config::getRankCommission('Diamante Negro'), 'mini_ads_daily' => $config::getUnlockedMinisCount('Diamante Negro'), 'order' => 8],
+            ['name' => 'Diamante Corona', 'min_referrals' => 40, 'max_referrals' => null, 'mega_ads_monthly' => 200, 'referral_commission' => $config::getRankCommission('Diamante Corona'), 'mini_ads_daily' => $config::getUnlockedMinisCount('Diamante Corona'), 'order' => 9],
         ];
 
         foreach ($ranks as $rank) {

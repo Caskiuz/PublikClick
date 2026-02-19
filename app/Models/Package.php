@@ -47,62 +47,58 @@ class Package extends Model
     // Métodos de negocio
     public function getMonthlyEarningsPotential()
     {
-        // 5 anuncios principales * 30 días + mini anuncios * 30 días
-        $mainEarnings = $this->main_ad_value * 5 * 30;
+        $config = \App\Services\EconomicConfig::class;
+        $mainEarnings = $this->main_ad_value * $config::MAIN_ADS_DAILY * 30;
         $miniEarnings = $this->mini_ad_value * $this->mini_ads_count * 30;
-        
         return $mainEarnings + $miniEarnings;
     }
 
     public static function seedPackages()
     {
+        $config = \App\Services\EconomicConfig::class;
         $packages = [
             [
                 'name' => 'Básico $25',
-                'description' => 'Paquete inicial para comenzar',
+                'description' => 'Paquete inicial - 5 anuncios principales + 4 mini-anuncios diarios',
                 'price_usd' => 25,
-                'banner_views' => 20000,
-                'post_views' => 9000,
-                'ptc_views' => 120,
-                'main_ad_value' => 400,
-                'mini_ad_value' => 83.33,
-                'mini_ads_count' => 4,
+                'price_cop' => 25 * 3800,
+                'daily_ads' => $config::MAIN_ADS_DAILY,
+                'main_ad_value' => $config::getMainAdValue(25),
+                'mini_ad_value' => $config::getMiniAdValue(25),
+                'mini_ads_count' => $config::getMiniAdCount(25),
                 'is_active' => true
             ],
             [
                 'name' => 'Básico $50',
-                'description' => 'Paquete intermedio con mejores ganancias',
+                'description' => 'Paquete intermedio - 5 anuncios principales + 4 mini-anuncios diarios',
                 'price_usd' => 50,
-                'banner_views' => 40000,
-                'post_views' => 20000,
-                'ptc_views' => 250,
-                'main_ad_value' => 600,
-                'mini_ad_value' => 425,
-                'mini_ads_count' => 4,
+                'price_cop' => 50 * 3800,
+                'daily_ads' => $config::MAIN_ADS_DAILY,
+                'main_ad_value' => $config::getMainAdValue(50),
+                'mini_ad_value' => $config::getMiniAdValue(50),
+                'mini_ads_count' => $config::getMiniAdCount(50),
                 'is_active' => true
             ],
             [
                 'name' => 'Avanzado $100',
-                'description' => 'Paquete avanzado con rango temporal Esmeralda',
+                'description' => 'Paquete avanzado - 5 anuncios principales + 4 mini-anuncios diarios',
                 'price_usd' => 100,
-                'banner_views' => 80000,
-                'post_views' => 40000,
-                'ptc_views' => 500,
-                'main_ad_value' => 1120,
-                'mini_ad_value' => 100,
-                'mini_ads_count' => 4,
+                'price_cop' => 100 * 3800,
+                'daily_ads' => $config::MAIN_ADS_DAILY,
+                'main_ad_value' => $config::getMainAdValue(100),
+                'mini_ad_value' => $config::getMiniAdValue(100),
+                'mini_ads_count' => $config::getMiniAdCount(100),
                 'is_active' => true
             ],
             [
                 'name' => 'Avanzado $150',
-                'description' => 'Paquete premium con máximas ganancias',
+                'description' => 'Paquete premium - 5 anuncios principales + 8 mini-anuncios diarios',
                 'price_usd' => 150,
-                'banner_views' => 120000,
-                'post_views' => 60000,
-                'ptc_views' => 750,
-                'main_ad_value' => 1600,
-                'mini_ad_value' => 600,
-                'mini_ads_count' => 8,
+                'price_cop' => 150 * 3800,
+                'daily_ads' => $config::MAIN_ADS_DAILY,
+                'main_ad_value' => $config::getMainAdValue(150),
+                'mini_ad_value' => $config::getMiniAdValue(150),
+                'mini_ads_count' => $config::getMiniAdCount(150),
                 'is_active' => true
             ]
         ];

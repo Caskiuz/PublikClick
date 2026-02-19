@@ -61,32 +61,59 @@ class AuthController extends Controller
     
     public function register(Request $request)
     {
+        // Validar código de referido obligatorio
+        if (!$request->has('referral_code') || empty($request->referral_code)) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Para registrarte en nuestro sitio necesitas el link de alguien que ya participe en nuestro sistema'
+                ], 422);
+            }
+            return back()->withErrors(['referral_code' => 'Código de referido obligatorio']);
+        }
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
-            'referral_code' => 'nullable|exists:users,referral_code'
+            'whatsapp' => 'required|string|max:20',
+            'country' => 'required|string|max:2',
+            'state' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'referral_code' => 'required|exists:users,referral_code',
+            'avatar' => 'nullable|url'
         ]);
         
-        $referrer = null;
-        if ($request->referral_code) {
-            $referrer = User::where('referral_code', $request->referral_code)->first();
+        $referrer = User::where('referral_code', $request->referral_code)->first();
+        
+        if (!$referrer) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Código de referido inválido'
+                ], 422);
+            }
+            return back()->withErrors(['referral_code' => 'Código de referido inválido']);
         }
         
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'whatsapp' => $request->whatsapp,
+            'avatar' => $request->avatar,
+            'country' => $request->country,
+            'state' => $request->state,
+            'city' => $request->city,
             'referral_code' => strtoupper(Str::random(8)),
-            'referred_by' => $referrer ? $referrer->id : null,
-            'wallet_balance' => 0,
+            'referred_by' => $referrer->id,
             'is_active' => true
         ]);
         
         Auth::login($user);
         
         if ($request->expectsJson()) {
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'redirect' => route('dashboard')]);
         }
         return redirect()->route('dashboard');
     }

@@ -26,7 +26,7 @@
                 </div>
                 <div class="ml-4">
                     <h3 class="text-sm font-semibold text-gray-500 uppercase">Ganado Hoy</h3>
-                    <p class="text-2xl font-bold text-green-600">${{ number_format($user->adClicks()->whereDate('clicked_at', today())->sum('earnings'), 2) }}</p>
+                    <p class="text-2xl font-bold text-green-600">{{ formatCurrency(convertCurrency($user->adClicks()->whereDate('clicked_at', today())->sum('earnings')), $user->currency ?? 'USD') }}</p>
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
                 </div>
                 <div class="ml-4">
                     <h3 class="text-sm font-semibold text-gray-500 uppercase">Total Ganado</h3>
-                    <p class="text-2xl font-bold text-purple-600">${{ number_format($user->wallet_balance, 2) }}</p>
+                    <p class="text-2xl font-bold text-purple-600">{{ formatCurrency(convertCurrency($user->wallet_balance), $user->currency ?? 'USD') }}</p>
                 </div>
             </div>
         </div>
@@ -209,7 +209,7 @@
                             {{ $click->clicked_at->format('d/m/Y H:i') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
-                            ${{ number_format($click->earnings, 2) }}
+                            {{ formatCurrency(convertCurrency($click->earnings), $user->currency ?? 'USD') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -253,7 +253,7 @@
                 </div>
                 <div class="flex justify-between items-center p-3 bg-green-50 rounded border-t-2 border-green-500">
                     <span class="text-gray-700 font-semibold">Total Ganado</span>
-                    <span class="font-bold text-green-600 text-lg">${{ number_format($user->adClicks()->whereMonth('clicked_at', now()->month)->sum('earnings'), 2) }}</span>
+                    <span class="font-bold text-green-600 text-lg">{{ formatCurrency(convertCurrency($user->adClicks()->whereMonth('clicked_at', now()->month)->sum('earnings')), $user->currency ?? 'USD') }}</span>
                 </div>
             </div>
         </div>

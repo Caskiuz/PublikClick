@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('type', ['deposit', 'withdrawal', 'commission', 'click_earning']);
+            $table->enum('type', ['deposit', 'withdrawal', 'commission', 'click_earning', 'credit', 'debit']);
             $table->decimal('amount', 10, 2);
             $table->enum('currency', ['COP', 'USD']);
             $table->enum('status', ['pending', 'completed', 'failed', 'cancelled']);

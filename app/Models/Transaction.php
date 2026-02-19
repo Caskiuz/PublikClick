@@ -8,15 +8,29 @@ class Transaction extends Model
 {
     protected $fillable = [
         'user_id',
+        'wallet_id',
         'type',
         'amount',
         'description',
         'reference_id',
-        'status'
+        'status',
+        'payment_method',
+        'payment_details',
+        'processed_at',
+        'admin_notes',
+        'user_comment',
+        'commented_at',
+        'requires_comment',
+        'proof_image',
+        'processed_by'
     ];
 
     protected $casts = [
-        'amount' => 'decimal:4'
+        'amount' => 'decimal:4',
+        'payment_details' => 'array',
+        'processed_at' => 'datetime',
+        'commented_at' => 'datetime',
+        'requires_comment' => 'boolean'
     ];
 
     const TYPE_CLICK_EARNING = 'click_earning';
@@ -33,6 +47,11 @@ class Transaction extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function processedBy()
+    {
+        return $this->belongsTo(User::class, 'processed_by');
     }
 
     // Métodos de negocio

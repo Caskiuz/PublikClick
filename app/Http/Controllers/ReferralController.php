@@ -12,24 +12,24 @@ class ReferralController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $tree = $this->buildReferralTree($user);
         
-        // Obtener árbol de referidos
-        $referralTree = $user->getReferralTree();
+        $level1 = $user->referrals()->count();
+        $level2 = $user->referrals()->with('referrals')->get()->sum(fn($r) => $r->referrals->count());
+        $level3 = $user->referrals()->with('referrals.referrals')->get()->sum(fn($r) => 
+            $r->referrals->sum(fn($r2) => $r2->referrals->count())
+        );
         
-        // Estadísticas de referidos
         $stats = [
-            'total_referrals' => $user->referrals()->count(),
-            'level_1' => $user->referrals()->count(),
-            'level_2' => $user->referrals()->with('referrals')->get()->sum(function($ref) {
-                return $ref->referrals->count();
-            }),
-            'level_3' => 0, // Calcular nivel 3
-            'total_commissions' => $user->transactions()
-                ->where('type', 'referral_commission')
-                ->sum('amount')
+            'total_referrals' => $level1 + $level2 + $level3,
+            'level_1' => $level1,
+            'level_2' => $level2,
+            'level_3' => $level3,
+            'total_commissions' => $user->total_referral_earnings ?? 0,
+            'active_referrals' => $user->active_referrals_count ?? 0
         ];
         
-        return view('referrals.index', compact('referralTree', 'stats', 'user'));
+        return view('referrals.index', compact('tree', 'stats', 'user'));
     }
     
     public function generateCode()
@@ -84,18 +84,20 @@ class ReferralController extends Controller
     {
         if ($level > $maxLevel) return [];
         
-        $referrals = $user->referrals()->get();
+        $referrals = $user->referrals()->with('currentPackage', 'currentRank')->get();
         $tree = [];
         
-        foreach ($referrals as $referral) {
+        foreach ($referrals as $ref) {
             $node = [
-                'id' => $referral->id,
-                'name' => $referral->name,
-                'email' => $referral->email,
-                'package' => 'Sin paquete',
+                'id' => $ref->id,
+                'name' => $ref->name,
+                'email' => substr($ref->email, 0, 3) . '***',
+                'package' => $ref->currentPackage ? '$' . $ref->currentPackage->price_usd : 'Sin paquete',
+                'rank' => $ref->currentRank ? $ref->currentRank->name : 'Sin rango',
                 'level' => $level,
-                'joined_at' => $referral->created_at->format('d/m/Y'),
-                'children' => $this->buildReferralTree($referral, $level + 1, $maxLevel)
+                'is_active' => $ref->is_active && $ref->current_package_id,
+                'joined_at' => $ref->created_at->format('d/m/Y'),
+                'children' => $this->buildReferralTree($ref, $level + 1, $maxLevel)
             ];
             
             $tree[] = $node;

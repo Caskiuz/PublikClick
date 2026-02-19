@@ -1,1 +1,167 @@
-<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Panel Admin - PubliClick</title>\n    <script src=\"https://cdn.tailwindcss.com\"></script>\n    <link href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css\" rel=\"stylesheet\">\n</head>\n<body class=\"bg-gray-100\">\n    <div class=\"flex h-screen\">\n        <!-- Admin Sidebar -->\n        <div class=\"bg-red-800 text-white w-64 min-h-screen p-4\">\n            <div class=\"mb-8\">\n                <h1 class=\"text-xl font-bold\">Admin Panel</h1>\n                <p class=\"text-red-200 text-sm\">PubliClick System</p>\n            </div>\n            \n            <nav class=\"space-y-2\">\n                <a href=\"/admin\" class=\"flex items-center space-x-3 text-white bg-red-600 p-3 rounded-lg\">\n                    <i class=\"fas fa-tachometer-alt\"></i>\n                    <span>Dashboard</span>\n                </a>\n                <a href=\"/admin/users\" class=\"flex items-center space-x-3 text-red-200 hover:text-white hover:bg-red-700 p-3 rounded-lg\">\n                    <i class=\"fas fa-users\"></i>\n                    <span>Usuarios</span>\n                </a>\n                <a href=\"/admin/withdrawals\" class=\"flex items-center space-x-3 text-red-200 hover:text-white hover:bg-red-700 p-3 rounded-lg\">\n                    <i class=\"fas fa-money-bill-wave\"></i>\n                    <span>Retiros</span>\n                </a>\n                <a href=\"/admin/reports\" class=\"flex items-center space-x-3 text-red-200 hover:text-white hover:bg-red-700 p-3 rounded-lg\">\n                    <i class=\"fas fa-chart-bar\"></i>\n                    <span>Reportes</span>\n                </a>\n                <a href=\"{{ route('dashboard') }}\" class=\"flex items-center space-x-3 text-red-200 hover:text-white hover:bg-red-700 p-3 rounded-lg\">\n                    <i class=\"fas fa-arrow-left\"></i>\n                    <span>Volver al Sistema</span>\n                </a>\n            </nav>\n        </div>\n\n        <!-- Main Content -->\n        <div class=\"flex-1 flex flex-col overflow-hidden\">\n            <header class=\"bg-white shadow-sm border-b p-4\">\n                <h2 class=\"text-2xl font-semibold text-gray-800\">Dashboard Administrativo</h2>\n            </header>\n\n            <main class=\"flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6\">\n                <!-- Stats Cards -->\n                <div class=\"grid grid-cols-1 md:grid-cols-3 gap-6 mb-8\">\n                    <div class=\"bg-white rounded-lg shadow p-6\">\n                        <div class=\"flex items-center\">\n                            <div class=\"p-3 rounded-full bg-blue-100 text-blue-600\">\n                                <i class=\"fas fa-users text-xl\"></i>\n                            </div>\n                            <div class=\"ml-4\">\n                                <h3 class=\"text-lg font-semibold text-gray-700\">Total Usuarios</h3>\n                                <p class=\"text-2xl font-bold text-blue-600\">{{ number_format($stats['total_users']) }}</p>\n                                <p class=\"text-sm text-gray-500\">{{ number_format($stats['active_users']) }} activos</p>\n                            </div>\n                        </div>\n                    </div>\n                    \n                    <div class=\"bg-white rounded-lg shadow p-6\">\n                        <div class=\"flex items-center\">\n                            <div class=\"p-3 rounded-full bg-green-100 text-green-600\">\n                                <i class=\"fas fa-mouse-pointer text-xl\"></i>\n                            </div>\n                            <div class=\"ml-4\">\n                                <h3 class=\"text-lg font-semibold text-gray-700\">Clicks Hoy</h3>\n                                <p class=\"text-2xl font-bold text-green-600\">{{ number_format($stats['total_clicks_today']) }}</p>\n                            </div>\n                        </div>\n                    </div>\n                    \n                    <div class=\"bg-white rounded-lg shadow p-6\">\n                        <div class=\"flex items-center\">\n                            <div class=\"p-3 rounded-full bg-red-100 text-red-600\">\n                                <i class=\"fas fa-exclamation-triangle text-xl\"></i>\n                            </div>\n                            <div class=\"ml-4\">\n                                <h3 class=\"text-lg font-semibold text-gray-700\">Retiros Pendientes</h3>\n                                <p class=\"text-2xl font-bold text-red-600\">{{ number_format($stats['pending_withdrawals']) }}</p>\n                            </div>\n                        </div>\n                    </div>\n                </div>\n\n                <!-- Financial Stats -->\n                <div class=\"grid grid-cols-1 md:grid-cols-2 gap-6 mb-8\">\n                    <div class=\"bg-white rounded-lg shadow p-6\">\n                        <h3 class=\"text-xl font-semibold mb-4\">Ingresos Totales</h3>\n                        <p class=\"text-3xl font-bold text-green-600\">${{ number_format(abs($stats['total_revenue']), 2) }}</p>\n                        <p class=\"text-gray-500\">Por venta de paquetes</p>\n                    </div>\n                    \n                    <div class=\"bg-white rounded-lg shadow p-6\">\n                        <h3 class=\"text-xl font-semibold mb-4\">Total Pagado</h3>\n                        <p class=\"text-3xl font-bold text-red-600\">${{ number_format(abs($stats['total_earnings_paid']), 2) }}</p>\n                        <p class=\"text-gray-500\">En retiros completados</p>\n                    </div>\n                </div>\n\n                <!-- Recent Activity -->\n                <div class=\"grid grid-cols-1 lg:grid-cols-2 gap-6\">\n                    <!-- Recent Users -->\n                    <div class=\"bg-white rounded-lg shadow p-6\">\n                        <h3 class=\"text-xl font-semibold mb-4\">Usuarios Recientes</h3>\n                        <div class=\"space-y-3\">\n                            @foreach($recent_users as $user)\n                            <div class=\"flex items-center justify-between p-3 bg-gray-50 rounded\">\n                                <div>\n                                    <p class=\"font-semibold\">{{ $user->name }}</p>\n                                    <p class=\"text-sm text-gray-500\">{{ $user->email }}</p>\n                                </div>\n                                <div class=\"text-right\">\n                                    <p class=\"text-sm font-semibold\">{{ $user->currentPackage->name ?? 'Sin paquete' }}</p>\n                                    <p class=\"text-xs text-gray-500\">{{ $user->created_at->diffForHumans() }}</p>\n                                </div>\n                            </div>\n                            @endforeach\n                        </div>\n                    </div>\n\n                    <!-- Pending Withdrawals -->\n                    <div class=\"bg-white rounded-lg shadow p-6\">\n                        <h3 class=\"text-xl font-semibold mb-4\">Retiros Pendientes</h3>\n                        <div class=\"space-y-3\">\n                            @foreach($pending_withdrawals as $withdrawal)\n                            <div class=\"flex items-center justify-between p-3 bg-yellow-50 rounded\">\n                                <div>\n                                    <p class=\"font-semibold\">{{ $withdrawal->user->name }}</p>\n                                    <p class=\"text-sm text-gray-500\">{{ $withdrawal->created_at->format('d/m/Y H:i') }}</p>\n                                </div>\n                                <div class=\"text-right\">\n                                    <p class=\"text-lg font-bold text-red-600\">${{ number_format(abs($withdrawal->amount), 2) }}</p>\n                                    <div class=\"space-x-2\">\n                                        <button onclick=\"approveWithdrawal({{ $withdrawal->id }})\" \n                                                class=\"text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600\">\n                                            Aprobar\n                                        </button>\n                                        <button onclick=\"rejectWithdrawal({{ $withdrawal->id }})\" \n                                                class=\"text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600\">\n                                            Rechazar\n                                        </button>\n                                    </div>\n                                </div>\n                            </div>\n                            @endforeach\n                        </div>\n                    </div>\n                </div>\n            </main>\n        </div>\n    </div>\n\n    <script>\n        async function approveWithdrawal(id) {\n            if (!confirm('¿Aprobar este retiro?')) return;\n            \n            try {\n                const response = await fetch(`/admin/withdrawals/${id}/approve`, {\n                    method: 'POST',\n                    headers: {\n                        'Content-Type': 'application/json',\n                        'X-CSRF-TOKEN': '{{ csrf_token() }}'\n                    }\n                });\n                \n                const result = await response.json();\n                alert(result.message);\n                \n                if (result.success) {\n                    location.reload();\n                }\n            } catch (error) {\n                alert('Error al procesar la solicitud');\n            }\n        }\n\n        async function rejectWithdrawal(id) {\n            if (!confirm('¿Rechazar este retiro? Los fondos serán devueltos al usuario.')) return;\n            \n            try {\n                const response = await fetch(`/admin/withdrawals/${id}/reject`, {\n                    method: 'POST',\n                    headers: {\n                        'Content-Type': 'application/json',\n                        'X-CSRF-TOKEN': '{{ csrf_token() }}'\n                    }\n                });\n                \n                const result = await response.json();\n                alert(result.message);\n                \n                if (result.success) {\n                    location.reload();\n                }\n            } catch (error) {\n                alert('Error al procesar la solicitud');\n            }\n        }\n    </script>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - PubliHazClick</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <h1 class="text-3xl font-bold">🎛️ Panel Administrativo</h1>
+                <div class="flex gap-4">
+                    <a href="{{ route('dashboard') }}" class="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100">
+                        🏠 Volver al sitio
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button class="bg-red-500 px-4 py-2 rounded-lg font-semibold hover:bg-red-600">
+                            🚪 Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="bg-white shadow-md">
+            <div class="max-w-7xl mx-auto px-6 py-4">
+                <nav class="flex gap-6">
+                    <a href="{{ route('admin.dashboard') }}" class="text-purple-600 font-semibold border-b-2 border-purple-600 pb-2">Dashboard</a>
+                    <a href="{{ route('admin.withdrawals') }}" class="text-gray-600 hover:text-purple-600 pb-2">Retiros</a>
+                    <a href="{{ route('admin.users') }}" class="text-gray-600 hover:text-purple-600 pb-2">Usuarios</a>
+                    <a href="{{ route('admin.reports') }}" class="text-gray-600 hover:text-purple-600 pb-2">Reportes</a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="max-w-7xl mx-auto p-6">
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Usuarios</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ number_format($stats['total_users']) }}</p>
+                            <p class="text-green-600 text-sm mt-1">{{ number_format($stats['active_users']) }} activos</p>
+                        </div>
+                        <div class="text-5xl">👥</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Clicks Hoy</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ number_format($stats['total_clicks_today']) }}</p>
+                            <p class="text-blue-600 text-sm mt-1">Anuncios vistos</p>
+                        </div>
+                        <div class="text-5xl">🖱️</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Retiros Pendientes</p>
+                            <p class="text-3xl font-bold text-orange-600">{{ number_format($stats['pending_withdrawals']) }}</p>
+                            <p class="text-gray-600 text-sm mt-1">Requieren atención</p>
+                        </div>
+                        <div class="text-5xl">⏳</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Pagado</p>
+                            <p class="text-3xl font-bold text-green-600">${{ number_format($stats['total_earnings_paid'], 0) }}</p>
+                            <p class="text-gray-600 text-sm mt-1">COP en retiros</p>
+                        </div>
+                        <div class="text-5xl">💰</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Ingresos Totales</p>
+                            <p class="text-3xl font-bold text-purple-600">${{ number_format($stats['total_revenue'], 0) }}</p>
+                            <p class="text-gray-600 text-sm mt-1">USD en paquetes</p>
+                        </div>
+                        <div class="text-5xl">📈</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Pending Withdrawals -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">⏳ Retiros Pendientes</h2>
+                    <div class="space-y-3">
+                        @forelse($pending_withdrawals as $withdrawal)
+                            <div class="border-l-4 border-orange-500 bg-orange-50 p-3 rounded">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">{{ $withdrawal->user->name }}</p>
+                                        <p class="text-sm text-gray-600">{{ $withdrawal->user->email }}</p>
+                                        <p class="text-lg font-bold text-orange-600 mt-1">${{ number_format($withdrawal->amount, 0) }} COP</p>
+                                    </div>
+                                    <a href="{{ route('admin.withdrawals') }}" class="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600">
+                                        Ver
+                                    </a>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">{{ $withdrawal->created_at->diffForHumans() }}</p>
+                            </div>
+                        @empty
+                            <p class="text-gray-500 text-center py-4">No hay retiros pendientes</p>
+                        @endforelse
+                    </div>
+                    <a href="{{ route('admin.withdrawals') }}" class="block text-center text-purple-600 font-semibold mt-4 hover:underline">
+                        Ver todos los retiros →
+                    </a>
+                </div>
+
+                <!-- Recent Users -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">👥 Usuarios Recientes</h2>
+                    <div class="space-y-3">
+                        @foreach($recent_users as $user)
+                            <div class="border-l-4 border-blue-500 bg-blue-50 p-3 rounded">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">{{ $user->name }}</p>
+                                        <p class="text-sm text-gray-600">{{ $user->email }}</p>
+                                        @if($user->currentPackage)
+                                            <span class="inline-block bg-green-500 text-white text-xs px-2 py-1 rounded mt-1">
+                                                Paquete ${{ $user->currentPackage->price_usd }}
+                                            </span>
+                                        @else
+                                            <span class="inline-block bg-gray-400 text-white text-xs px-2 py-1 rounded mt-1">
+                                                Sin paquete
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Registrado {{ $user->created_at->diffForHumans() }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

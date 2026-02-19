@@ -28,12 +28,68 @@ class WithdrawalController extends Controller
         ]);
         
         $user = Auth::user();
+        $user->load(['currentRank', 'withdrawalWallet']);
         
         // Verificar contraseña
         if (!password_verify($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Contraseña incorrecta'
+            ], 400);
+        }
+        
+        // VALIDACIÓN 1: Tener paquete activo
+        if (!$user->current_package_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Debes tener un paquete activo para retirar'
+            ], 400);
+        }
+        
+        // VALIDACIÓN 2: Tener al menos 1 invitado activo
+        $activeReferrals = $user->activeReferrals()->count();
+        if ($activeReferrals < 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Debes tener al menos 1 invitado activo para retirar'
+            ], 400);
+        }
+        
+        // VALIDACIÓN 3: Mínimo 30 días entre retiros
+        $lastWithdrawal = Transaction::where('user_id', $user->id)
+            ->where('type', 'withdrawal')
+            ->where('status', 'completed')
+            ->orderBy('created_at', 'desc')
+            ->first();
+            
+        if ($lastWithdrawal && $lastWithdrawal->created_at->diffInDays(now()) < 30) {
+            $daysRemaining = 30 - $lastWithdrawal->created_at->diffInDays(now());
+            return response()->json([
+                'success' => false,
+                'message' => "Debes esperar {$daysRemaining} días más para realizar otro retiro"
+            ], 400);
+        }
+        
+        // VALIDACIÓN 4: Monto mínimo según categoría
+        $minimumWithdrawals = [
+            'Jade' => 110000,
+            'Perla' => 200000,
+            'Zafiro' => 400000,
+            'Rubí' => 1300000,
+            'Esmeralda' => 1500000,
+            'Diamante' => 0,
+            'Diamante Azul' => 0,
+            'Diamante Negro' => 0,
+            'Diamante Corona' => 0,
+        ];
+        
+        $rankName = $user->currentRank ? $user->currentRank->name : 'Jade';
+        $minimumAmount = $minimumWithdrawals[$rankName] ?? 110000;
+        
+        if ($minimumAmount > 0 && $request->amount < $minimumAmount) {
+            return response()->json([
+                'success' => false,
+                'message' => "El monto mínimo de retiro para tu categoría {$rankName} es $" . number_format($minimumAmount, 0)
             ], 400);
         }
         
