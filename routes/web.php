@@ -144,6 +144,10 @@ Route::get('/historial-retiros', [App\Http\Controllers\WalletController::class, 
         Route::get('/history', [WithdrawalController::class, 'history'])->name('history');
     });
     
+    // Comentarios de usuario sobre retiros
+    Route::get('/user-comments', [\App\Http\Controllers\UserCommentController::class, 'index'])->name('user-comments.index');
+    Route::post('/user-comments/{transaction}', [\App\Http\Controllers\UserCommentController::class, 'store'])->name('user-comments.store');
+    
     // Ruta de cambio de moneda
     Route::post('/currency/change', [CurrencyController::class, 'change'])->name('currency.change');
     
@@ -170,6 +174,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/withdrawals-management', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'index'])->name('withdrawals.management');
     Route::post('/withdrawals/{id}/approve', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'approve'])->name('withdrawals.approve');
     Route::post('/withdrawals/{id}/reject', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'reject'])->name('withdrawals.reject');
+    Route::post('/withdrawals/{id}/upload-proof', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'uploadProof'])->name('withdrawals.upload-proof');
     
     // Banners
     Route::get('/banners', [\App\Http\Controllers\AdBannerController::class, 'index'])->name('banners.index');
@@ -182,6 +187,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/payment-gateways', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'index'])->name('payment-gateways.index');
     Route::post('/payment-gateways/{id}/toggle', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'toggle'])->name('payment-gateways.toggle');
     Route::put('/payment-gateways/{id}', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'update'])->name('payment-gateways.update');
+    
+    // Site Settings
+    Route::get('/settings', [\App\Http\Controllers\Admin\SiteSettingsController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [\App\Http\Controllers\Admin\SiteSettingsController::class, 'update'])->name('settings.update');
     
     // Users Management
     Route::get('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('users.index');

@@ -30,6 +30,8 @@ class User extends Authenticatable
         'bank_info',
         'is_active',
         'is_admin',
+        'system_locked',
+        'lock_reason',
         'nequi_phone',
         'whatsapp',
         'avatar',
@@ -62,6 +64,7 @@ class User extends Authenticatable
             'bank_info' => 'array',
             'is_active' => 'boolean',
             'is_admin' => 'boolean',
+            'system_locked' => 'boolean',
             'package_purchased_at' => 'datetime'
         ];
     }

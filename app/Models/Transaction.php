@@ -9,6 +9,7 @@ class Transaction extends Model
     protected $fillable = [
         'user_id',
         'wallet_id',
+        'payment_method_id',
         'type',
         'amount',
         'description',
@@ -19,18 +20,24 @@ class Transaction extends Model
         'processed_at',
         'admin_notes',
         'user_comment',
-        'commented_at',
+        'user_comment_at',
+        'payment_proof',
+        'payment_proof_uploaded_at',
         'requires_comment',
-        'proof_image',
+        'system_locked',
+        'metadata',
         'processed_by'
     ];
 
     protected $casts = [
         'amount' => 'decimal:4',
         'payment_details' => 'array',
+        'metadata' => 'array',
         'processed_at' => 'datetime',
-        'commented_at' => 'datetime',
-        'requires_comment' => 'boolean'
+        'user_comment_at' => 'datetime',
+        'payment_proof_uploaded_at' => 'datetime',
+        'requires_comment' => 'boolean',
+        'system_locked' => 'boolean'
     ];
 
     const TYPE_CLICK_EARNING = 'click_earning';
@@ -47,6 +54,11 @@ class Transaction extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function paymentMethod()
+    {
+        return $this->belongsTo(PaymentMethod::class);
     }
 
     public function processedBy()

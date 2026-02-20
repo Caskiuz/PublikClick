@@ -69,7 +69,7 @@ class AuthController extends Controller
                     'message' => 'Para registrarte en nuestro sitio necesitas el link de alguien que ya participe en nuestro sistema'
                 ], 422);
             }
-            return back()->withErrors(['referral_code' => 'Código de referido obligatorio']);
+            return back()->withErrors(['referral_code' => 'Código de referido obligatorio'])->withInput();
         }
         
         $request->validate([
@@ -93,7 +93,7 @@ class AuthController extends Controller
                     'message' => 'Código de referido inválido'
                 ], 422);
             }
-            return back()->withErrors(['referral_code' => 'Código de referido inválido']);
+            return back()->withErrors(['referral_code' => 'Código de referido inválido'])->withInput();
         }
         
         $user = User::create([

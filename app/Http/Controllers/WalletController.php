@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Wallet;
 use App\Models\Withdrawal;
 use App\Models\Transaction;
+use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,8 +25,9 @@ class WalletController extends Controller
 
         $canWithdraw = Withdrawal::canUserWithdraw($user->id);
         $minimumWithdrawal = Withdrawal::getMinimumWithdrawal($user->currentRank->name ?? 'Jade');
+        $paymentMethods = PaymentMethod::getActive();
 
-        return view('billetera', compact('withdrawalWallet', 'donationWallet', 'recentTransactions', 'canWithdraw', 'minimumWithdrawal'));
+        return view('billetera', compact('withdrawalWallet', 'donationWallet', 'recentTransactions', 'canWithdraw', 'minimumWithdrawal', 'paymentMethods'));
     }
 
     public function requestWithdrawal(Request $request)
@@ -39,11 +41,16 @@ class WalletController extends Controller
 
         $request->validate([
             'amount' => 'required|numeric|min:1',
-            'payment_method' => 'required|in:bancolombia,nequi,daviplata,efecty,western_union,paypal,bank_transfer',
+            'payment_method' => 'required|exists:payment_methods,slug',
             'account_holder' => 'required|string',
             'account_number' => 'required|string',
             'document_number' => 'required|string'
         ]);
+
+        $paymentMethod = PaymentMethod::getBySlug($request->payment_method);
+        if (!$paymentMethod) {
+            return back()->with('error', 'Método de pago no disponible');
+        }
 
         $withdrawalWallet = $user->wallets->where('type', Wallet::TYPE_WITHDRAWAL)->first();
         $minimumWithdrawal = Withdrawal::getMinimumWithdrawal($user->currentRank->name ?? 'Jade');
@@ -57,7 +64,7 @@ class WalletController extends Controller
         }
 
         try {
-            $withdrawalWallet->withdrawFunds($request->amount, "Solicitud de retiro vía {$request->payment_method}");
+            $withdrawalWallet->withdrawFunds($request->amount, "Solicitud de retiro vía {$paymentMethod->name}");
             
             $transaction = Transaction::where('user_id', $user->id)
                 ->where('type', 'debit')
@@ -65,8 +72,9 @@ class WalletController extends Controller
                 ->first();
 
             $transaction->update([
-                'payment_method' => $request->payment_method,
+                'payment_method_id' => $paymentMethod->id,
                 'payment_details' => [
+                    'method' => $paymentMethod->slug,
                     'account_holder' => $request->account_holder,
                     'account_number' => $request->account_number,
                     'document_number' => $request->document_number

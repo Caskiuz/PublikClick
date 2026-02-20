@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
+use App\Models\PaymentMethod;
 
 class WithdrawalController extends Controller
 {
@@ -16,19 +17,30 @@ class WithdrawalController extends Controller
             $query->where('type', 'withdrawal')->orderBy('created_at', 'desc');
         }]);
         
-        return view('billetera', compact('user'));
+        $paymentMethods = PaymentMethod::getActive();
+        
+        return view('billetera', compact('user', 'paymentMethods'));
     }
     
     public function request(Request $request)
     {
         $request->validate([
             'amount' => 'required|numeric|min:10|max:10000',
-            'nequi_phone' => 'required|string|regex:/^[0-9]{10}$/',
+            'payment_method' => 'required|exists:payment_methods,slug',
+            'payment_account' => 'required|string',
             'password' => 'required|string'
         ]);
         
         $user = Auth::user();
         $user->load(['currentRank', 'withdrawalWallet']);
+        
+        $paymentMethod = PaymentMethod::getBySlug($request->payment_method);
+        if (!$paymentMethod) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Método de pago no disponible'
+            ], 400);
+        }
         
         // Verificar contraseña
         if (!password_verify($request->password, $user->password)) {
@@ -108,12 +120,19 @@ class WithdrawalController extends Controller
             // Crear solicitud de retiro
             $transaction = Transaction::create([
                 'user_id' => $user->id,
+                'payment_method_id' => $paymentMethod->id,
                 'type' => 'withdrawal',
                 'amount' => -$request->amount,
-                'description' => "Retiro a Nequi: {$request->nequi_phone}",
+                'description' => "Retiro a {$paymentMethod->name}: {$request->payment_account}",
                 'status' => 'pending',
+                'payment_details' => [
+                    'method' => $paymentMethod->slug,
+                    'account' => $request->payment_account,
+                    'requested_at' => now()->toDateTimeString()
+                ],
                 'metadata' => json_encode([
-                    'nequi_phone' => $request->nequi_phone,
+                    'payment_method' => $paymentMethod->slug,
+                    'payment_account' => $request->payment_account,
                     'requested_at' => now()
                 ])
             ]);
@@ -135,7 +154,7 @@ class WithdrawalController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Error al procesar la solicitud'
+                'message' => 'Error al procesar la solicitud: ' . $e->getMessage()
             ], 500);
         }
     }

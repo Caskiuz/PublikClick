@@ -69,18 +69,11 @@
                         <label class="block text-sm font-medium mb-2">Método de Pago</label>
                         <select name="payment_method" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500">
                             <option value="">Seleccionar...</option>
-                            <optgroup label="🇨🇴 Colombia">
-                                <option value="bancolombia">Bancolombia</option>
-                                <option value="nequi">Nequi</option>
-                                <option value="daviplata">Daviplata</option>
-                            </optgroup>
-                            <optgroup label="🌎 Internacional">
-                                <option value="efecty">Efecty</option>
-                                <option value="western_union">Western Union</option>
-                                <option value="paypal">PayPal</option>
-                                <option value="bank_transfer">Transferencia Bancaria</option>
-                            </optgroup>
+                            @foreach($paymentMethods as $method)
+                            <option value="{{ $method->slug }}">{{ $method->name }}</option>
+                            @endforeach
                         </select>
+                        <p class="text-xs text-gray-500 mt-1" id="payment-instructions"></p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-2">Titular de la Cuenta</label>

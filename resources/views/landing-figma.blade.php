@@ -66,6 +66,165 @@
         </div>
     </section>
 
+    <!-- Demo Anuncios Simulados -->
+    <section class="py-12 md:py-20 bg-gradient-to-b from-black to-gray-900 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 md:mb-12">
+                <h2 class="text-3xl md:text-5xl font-bold text-primary mb-4">💰 Esto es lo que podrías ganar...</h2>
+                <p class="text-lg md:text-xl text-white">Haz click en los anuncios y mira cómo crece tu billetera</p>
+            </div>
+
+            <!-- Billetera Flotante -->
+            <div id="demo-wallet" class="fixed top-24 right-4 md:right-8 z-40 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-2xl p-4 md:p-6 border-2 border-green-400 transform transition-all duration-300">
+                <div class="text-center">
+                    <div class="text-white text-xs md:text-sm font-semibold mb-2">💰 Tu Billetera Demo</div>
+                    <div id="demo-balance" class="text-2xl md:text-4xl font-bold text-white mb-1">$0</div>
+                    <div class="text-green-100 text-xs">COP</div>
+                    <div class="mt-3 text-xs text-green-100">
+                        <div>Clicks: <span id="demo-clicks" class="font-bold">0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Anuncios Demo -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                <!-- Mega Anuncio Demo -->
+                <div class="bg-gray-800 border-2 border-yellow-500 rounded-2xl p-6 card-hover relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-yellow-500 text-black px-3 py-1 rounded-bl-lg text-xs font-bold">
+                        MEGA
+                    </div>
+                    <div class="text-center mb-4">
+                        <i class="fas fa-star text-5xl text-yellow-500 mb-3"></i>
+                        <h3 class="text-xl font-bold text-white mb-2">Mega Anuncio</h3>
+                        <div class="text-3xl font-bold text-yellow-500">$2,000</div>
+                        <div class="text-gray-400 text-sm">COP por click</div>
+                    </div>
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4 min-h-[120px] flex items-center justify-center">
+                        <div class="text-center text-gray-400">
+                            <i class="fas fa-ad text-4xl mb-2"></i>
+                            <p class="text-sm">Anuncio de 120 segundos</p>
+                        </div>
+                    </div>
+                    <button onclick="simulateClick(2000, 'mega')" class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold py-3 rounded-lg hover:from-yellow-600 hover:to-orange-600 transition transform hover:scale-105">
+                        <i class="fas fa-mouse-pointer mr-2"></i>Hacer Click Demo
+                    </button>
+                    <div class="mt-3 text-center text-xs text-gray-400">
+                        ⏱️ 120 segundos • 💎 Acumulable 30 días
+                    </div>
+                </div>
+
+                <!-- Anuncio Principal Demo -->
+                <div class="bg-gray-800 border-2 border-cyan-500 rounded-2xl p-6 card-hover relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-cyan-500 text-black px-3 py-1 rounded-bl-lg text-xs font-bold">
+                        PRINCIPAL
+                    </div>
+                    <div class="text-center mb-4">
+                        <i class="fas fa-bullhorn text-5xl text-cyan-500 mb-3"></i>
+                        <h3 class="text-xl font-bold text-white mb-2">Anuncio Principal</h3>
+                        <div class="text-3xl font-bold text-cyan-500">$400-$600</div>
+                        <div class="text-gray-400 text-sm">COP por click</div>
+                    </div>
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4 min-h-[120px] flex items-center justify-center">
+                        <div class="text-center text-gray-400">
+                            <i class="fas fa-ad text-4xl mb-2"></i>
+                            <p class="text-sm">Anuncio de 90 segundos</p>
+                        </div>
+                    </div>
+                    <button onclick="simulateClick(500, 'principal')" class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold py-3 rounded-lg hover:from-cyan-600 hover:to-blue-600 transition transform hover:scale-105">
+                        <i class="fas fa-mouse-pointer mr-2"></i>Hacer Click Demo
+                    </button>
+                    <div class="mt-3 text-center text-xs text-gray-400">
+                        ⏱️ 90 segundos • 🔄 5 clicks diarios
+                    </div>
+                </div>
+
+                <!-- Mini Anuncio Demo -->
+                <div class="bg-gray-800 border-2 border-green-500 rounded-2xl p-6 card-hover relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-green-500 text-black px-3 py-1 rounded-bl-lg text-xs font-bold">
+                        MINI
+                    </div>
+                    <div class="text-center mb-4">
+                        <i class="fas fa-coins text-5xl text-green-500 mb-3"></i>
+                        <h3 class="text-xl font-bold text-white mb-2">Mini Anuncio</h3>
+                        <div class="text-3xl font-bold text-green-500">$100</div>
+                        <div class="text-gray-400 text-sm">COP por click</div>
+                    </div>
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4 min-h-[120px] flex items-center justify-center">
+                        <div class="text-center text-gray-400">
+                            <i class="fas fa-ad text-4xl mb-2"></i>
+                            <p class="text-sm">Anuncio de 60 segundos</p>
+                        </div>
+                    </div>
+                    <button onclick="simulateClick(100, 'mini')" class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold py-3 rounded-lg hover:from-green-600 hover:to-emerald-600 transition transform hover:scale-105">
+                        <i class="fas fa-mouse-pointer mr-2"></i>Hacer Click Demo
+                    </button>
+                    <div class="mt-3 text-center text-xs text-gray-400">
+                        ⏱️ 60 segundos • 💎 Acumulable 30 días
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensaje Motivacional -->
+            <div class="mt-12 text-center bg-gradient-to-r from-purple-900 to-pink-900 rounded-2xl p-8 border-2 border-purple-500">
+                <h3 class="text-2xl md:text-3xl font-bold text-white mb-4">🚀 ¡Imagina ganar esto TODOS LOS DÍAS!</h3>
+                <p class="text-lg text-purple-200 mb-6">Con solo 15 minutos al día, podrías generar ingresos constantes desde casa</p>
+                <button onclick="window.location.href='/register'" class="bg-white text-purple-600 px-8 py-4 rounded-full text-lg font-bold hover:bg-gray-100 transition transform hover:scale-105 shadow-xl">
+                    <i class="fas fa-user-plus mr-2"></i>Regístrate GRATIS Ahora
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let demoBalance = 0;
+        let demoClicks = 0;
+
+        function simulateClick(amount, type) {
+            // Animar el botón
+            event.target.disabled = true;
+            event.target.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Procesando...';
+
+            setTimeout(() => {
+                // Incrementar balance
+                demoBalance += amount;
+                demoClicks++;
+
+                // Actualizar UI
+                document.getElementById('demo-balance').textContent = '$' + demoBalance.toLocaleString('es-CO');
+                document.getElementById('demo-clicks').textContent = demoClicks;
+
+                // Animar billetera
+                const wallet = document.getElementById('demo-wallet');
+                wallet.classList.add('scale-110');
+                setTimeout(() => wallet.classList.remove('scale-110'), 300);
+
+                // Mostrar notificación
+                showNotification(`¡+$${amount.toLocaleString('es-CO')} COP ganados!`, type);
+
+                // Restaurar botón
+                event.target.disabled = false;
+                event.target.innerHTML = '<i class="fas fa-mouse-pointer mr-2"></i>Hacer Click Demo';
+            }, 1500);
+        }
+
+        function showNotification(message, type) {
+            const colors = {
+                'mega': 'from-yellow-500 to-orange-500',
+                'principal': 'from-cyan-500 to-blue-500',
+                'mini': 'from-green-500 to-emerald-500'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `fixed top-24 left-1/2 transform -translate-x-1/2 bg-gradient-to-r ${colors[type]} text-white px-6 py-3 rounded-full shadow-2xl z-50 font-bold animate-bounce`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
+        }
+    </script>
+
     <style>
         .banner-slider { position: relative; height: 250px; }
         @media (min-width: 768px) { .banner-slider { height: 400px; } }
@@ -95,6 +254,32 @@
     <!-- Cómo Funciona -->
     <section id="como-funciona" class="py-12 md:py-20 bg-black">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Video Explicativo -->
+            <div class="mb-16 md:mb-20">
+                <div class="text-center mb-8 md:mb-12">
+                    <h2 class="text-3xl md:text-5xl font-bold text-primary mb-4">🎥 Así de fácil es ganar con nosotros</h2>
+                    <p class="text-lg md:text-xl text-white">Mira cómo funciona nuestro modelo de negocio</p>
+                </div>
+                <div class="max-w-4xl mx-auto">
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-primary" style="padding-bottom: 56.25%;">
+                        <iframe 
+                            class="absolute top-0 left-0 w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                            title="Cómo ganar con PubliHazClick" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="text-center mt-8">
+                        <button onclick="window.location.href='/register'" class="btn-primary px-8 py-4 rounded-full text-lg font-bold transition transform hover:scale-105 shadow-xl">
+                            <i class="fas fa-rocket mr-2"></i>Regístrate en PubliHazClick
+                        </button>
+                        <p class="text-gray-400 mt-4 text-sm">* Necesitas un código de referido para registrarte</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="text-center mb-12 md:mb-16">
                 <h2 class="text-3xl md:text-5xl font-bold text-primary mb-4">¿Cómo Funciona?</h2>
                 <p class="text-lg md:text-xl text-white">3 simples pasos para comenzar a ganar</p>
